@@ -4,7 +4,7 @@ import requests
 
 
 def test_api():
-    url = "http://localhost:8000/invoke"
+    url = "http://localhost:8000/api/invoke"
     data = {"message": "Háblame de tu experiencia laboral"}
 
     try:
