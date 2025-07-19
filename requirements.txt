@@ -1,0 +1,7 @@
+google-adk
+python-dotenv
+google-generativeai
+uvicorn
+requests
+fastapi
+pydantic
