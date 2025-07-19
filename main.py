@@ -1,7 +1,7 @@
 import os
 
 import uvicorn
-from fastapi import FastAPI
+from fastapi import APIRouter, FastAPI
 from pydantic import BaseModel
 
 try:
@@ -18,14 +18,11 @@ class InvokeRequest(BaseModel):
     message: str
 
 
-app = FastAPI(
-    title="API del Agente Personal de Sergio",
-    description="Un servidor para interactuar con el agente personal basado en ADK y Gemini.",
-    version="1.0.0",
-)
+# Crear el router con prefijo
+api_router = APIRouter(prefix="/api")
 
 
-@app.post("/invoke")
+@api_router.post("/invoke")
 async def invoke_agent_endpoint(request: InvokeRequest):
     """
     Recibe un mensaje del usuario, lo pasa al agente y devuelve la respuesta.
@@ -35,6 +32,17 @@ async def invoke_agent_endpoint(request: InvokeRequest):
         return {"response": response}
     except Exception as e:
         return {"error": f"Ha ocurrido un error en el agente: {e}"}
+
+
+app = FastAPI(
+    title="API del Agente Personal de Sergio",
+    description="Un servidor para interactuar con el agente personal basado en ADK y Gemini.",
+    version="1.0.0",
+)
+
+
+# Incluir el router en la app
+app.include_router(api_router)
 
 
 if __name__ == "__main__":
