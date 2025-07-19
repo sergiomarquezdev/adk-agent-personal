@@ -60,7 +60,7 @@ adk-agent-personal/
 1. **Clonar el repositorio**
 
    ```bash
-   git clone https://github.com/tu-usuario/adk-agent-personal.git
+   git clone https://github.com/sergiomarquezdev/adk-agent-personal.git
    cd adk-agent-personal
    ```
 
@@ -112,7 +112,7 @@ curl -X POST "http://localhost:8000/api/invoke" \
 
 ```json
 {
-  "response": "Perfecto. Según mi CV, he tenido dos roles principales en VITALY:\n\nPrimero, desde mayo de 2025, trabajo como **Desarrollador IA/ML**..."
+  "response": "Perfecto. Según mi CV, he tenido dos roles principales en XXXXX:\n\nPrimero, desde mayo de 2025, trabajo como **Desarrollador IA/ML**..."
 }
 ```
 
