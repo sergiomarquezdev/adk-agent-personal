@@ -4,7 +4,7 @@ Este archivo mantiene compatibilidad hacia atrás mientras redirige a la nueva e
 """
 
 # Importar desde el nuevo módulo CV
-from .tools.cv import search_cv_info
+from .tools.cv import cv_tools
 
 # Re-exportar para mantener compatibilidad
-__all__ = ["search_cv_info"]
+__all__ = ["cv_tools"]

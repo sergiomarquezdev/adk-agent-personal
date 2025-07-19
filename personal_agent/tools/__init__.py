@@ -2,8 +2,8 @@
 Módulo de herramientas del agente personal.
 """
 
-from .cv import search_cv_info
+from .cv import cv_tools
 
 __all__ = [
-    "search_cv_info",
+    "cv_tools",
 ]

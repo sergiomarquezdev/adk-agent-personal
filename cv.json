@@ -1,0 +1,107 @@
+{
+  "basics": {
+    "name": "Sergio Márquez",
+    "label": "AI/ML Developer",
+    "image": "",
+    "email": "contact@sergiomarquez.dev",
+    "phone": "",
+    "url": "https://sergiomarquez.dev",
+    "summary": "Un desarrollador de software con una sólida base en Python y FastAPI que ha pivotado hacia el mundo de la Inteligencia Artificial y el Machine Learning. Apasionado por la creación de soluciones innovadoras, la automatización de procesos y el desarrollo de agentes inteligentes. Me encanta aprender, compartir conocimiento y enfrentar nuevos desafíos tecnológicos.",
+    "location": {
+      "address": "",
+      "postalCode": "29010",
+      "city": "Málaga",
+      "countryCode": "ES",
+      "region": "Andalucía"
+    },
+    "profiles": [
+      {
+        "network": "LinkedIn",
+        "username": "smarquesan",
+        "url": "https://www.linkedin.com/in/smarquesan/"
+      },
+      {
+        "network": "GitHub",
+        "username": "smarquesan",
+        "url": "https://github.com/smarquesan"
+      }
+    ]
+  },
+  "work": [
+    {
+      "name": "PwC",
+      "position": "AI/ML Developer",
+      "url": "https://www.pwc.es/",
+      "startDate": "2023-11-01",
+      "endDate": null,
+      "summary": "Desarrollo de soluciones de IA y ML para clientes, especializándome en el framework ADK de Google para la creación de agentes inteligentes y en el desarrollo de aplicaciones con FastAPI. Lidero la implementación de RAG y la automatización de procesos para mejorar la eficiencia.",
+      "highlights": [
+        "Desarrollo de agentes con Google ADK y Gemini.",
+        "Creación de APIs con FastAPI.",
+        "Implementación de sistemas RAG (Retrieval-Augmented Generation).",
+        "Automatización de procesos de negocio."
+      ]
+    },
+    {
+      "name": "Airzone",
+      "position": "Software Developer",
+      "url": "https://www.airzone.es/",
+      "startDate": "2021-05-01",
+      "endDate": "2023-11-01",
+      "summary": "Fui responsable del desarrollo y mantenimiento de la API de Airzone Cloud, utilizando Python y FastAPI. Automaticé procesos de QA y trabajé en la integración de sistemas de climatización con plataformas de terceros.",
+      "highlights": [
+        "Mantenimiento y desarrollo de la API Cloud.",
+        "Automatización de pruebas y procesos de QA.",
+        "Integración con Google Home y Alexa."
+      ]
+    }
+  ],
+  "education": [
+    {
+      "institution": "Universidad de Málaga",
+      "url": "https://www.uma.es/",
+      "area": "Ingeniería de Software",
+      "studyType": "Grado",
+      "startDate": "2016-09-01",
+      "endDate": "2021-06-01",
+      "score": "",
+      "courses": []
+    }
+  ],
+  "certificates": [
+    {
+      "name": "Machine Learning Specialization",
+      "date": "2023-10-01",
+      "issuer": "Coursera",
+      "url": "https://www.coursera.org/specializations/machine-learning-introduction"
+    }
+  ],
+  "skills": {
+    "highlighted": [
+      "Python",
+      "FastAPI",
+      "Google ADK",
+      "Gemini",
+      "Docker",
+      "Git"
+    ],
+    "other": [
+      "JavaScript",
+      "HTML",
+      "CSS",
+      "SQL"
+    ],
+    "databases": [
+      "PostgreSQL",
+      "MySQL",
+      "SQLite"
+    ]
+  },
+  "projects": [
+    {
+      "name": "Agente Personal con ADK",
+      "summary": "Este mismo proyecto. Un agente personal capaz de responder preguntas sobre mi CV, utilizando el framework ADK de Google y FastAPI para la API.",
+      "url": "https://github.com/smarquesan/adk-agent-personal"
+    }
+  ]
+}
