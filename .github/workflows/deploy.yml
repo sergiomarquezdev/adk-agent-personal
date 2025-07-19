@@ -1,0 +1,48 @@
+name: Build, Push, and Deploy Personal Agent
+
+on:
+  push:
+    branches:
+      - main
+  workflow_dispatch:
+
+jobs:
+  # --- JOB 1: CONSTRUIR Y SUBIR LA IMAGEN DOCKER ---
+  build-and-push-image:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Login to Docker Hub
+        uses: docker/login-action@v3
+        with:
+          username: ${{ secrets.DOCKERHUB_USERNAME }}
+          password: ${{ secrets.DOCKERHUB_TOKEN }}
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: Build and push Docker image
+        uses: docker/build-push-action@v5
+        with:
+          context: .
+          push: true
+          tags: smarquezp/sergio-personal-agent:latest, smarquezp/sergio-personal-agent:${{ github.sha }}
+
+  # --- JOB 2: DESPLEGAR EN EL SERVIDOR ---
+  deploy-on-vps:
+    needs: build-and-push-image
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Deploy to server by running the update script
+        uses: appleboy/ssh-action@v1.0.0
+        with:
+          host: ${{ secrets.VPS_HOST }}
+          username: ${{ secrets.VPS_USER }}
+          key: ${{ secrets.VPS_SSH_KEY }}
+          script: |
+            cd /home/ubuntu/sergio-personal-agent
+            chmod +x ./update.sh
+            bash ./update.sh
