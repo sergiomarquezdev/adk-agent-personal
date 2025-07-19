@@ -271,3 +271,5 @@ datasets/
 !firebase.json
 !firestore.rules
 !firestore.indexes.json
+
+nginx/
