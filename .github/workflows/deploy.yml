@@ -39,6 +39,9 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
       - name: Copiar index.html al servidor (frontend)
         uses: appleboy/scp-action@v1
         with:
