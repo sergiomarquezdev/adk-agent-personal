@@ -1,3 +1,6 @@
+# COMANDO PARA SERVER:
+# ubuntu ALL=NOPASSWD: /bin/systemctl restart nginx, /bin/mv /home/ubuntu/sergio-personal-agent/nginx.conf /etc/nginx/sites-available/chat.sergiomarquez.dev, /bin/mv /home/ubuntu/sergio-personal-agent/index.html /var/www/chat.sergiomarquez.dev/index.html
+
 name: Build, Push, and Deploy Personal Agent
 
 on:
