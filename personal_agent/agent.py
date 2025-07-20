@@ -6,7 +6,8 @@ from google.adk.agents import Agent
 from google.adk.runners import Runner
 from google.adk.sessions import InMemorySessionService
 from google.genai import types
-from tools import cv_tools
+
+from personal_agent.tools import cv_tools
 
 load_dotenv()
 
