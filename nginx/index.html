@@ -1,0 +1,741 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sergio Márquez - AI Assistant</title>
+    <link rel="icon" type="image/png" href="./favicon.png">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+            background: #f8fafc;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .chat-header {
+            background: #ffffff;
+            border-bottom: 1px solid #e5e7eb;
+            padding: 16px 24px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+        }
+
+        .agent-info {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .agent-avatar {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #14b8a6 0%, #0ea5e9 100%);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: 600;
+            font-size: 16px;
+            box-shadow: 0 2px 8px rgba(20, 184, 166, 0.3);
+            overflow: hidden;
+        }
+
+        .agent-avatar img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            border-radius: 50%;
+        }
+
+        .agent-details h2 {
+            font-size: 16px;
+            font-weight: 600;
+            color: #111827;
+            margin-bottom: 2px;
+        }
+
+        .agent-status {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            font-size: 13px;
+            color: #6b7280;
+        }
+
+        .status-dot {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background: #10b981;
+            animation: pulse 2s infinite;
+        }
+
+        @keyframes pulse {
+
+            0%,
+            100% {
+                opacity: 1;
+            }
+
+            50% {
+                opacity: 0.5;
+            }
+        }
+
+        .chat-actions {
+            display: flex;
+            gap: 8px;
+        }
+
+        .action-btn {
+            padding: 8px 12px;
+            border: 1px solid #d1d5db;
+            border-radius: 8px;
+            background: #ffffff;
+            color: #6b7280;
+            cursor: pointer;
+            font-size: 13px;
+            transition: all 0.2s;
+        }
+
+        .action-btn:hover {
+            background: #f9fafb;
+            border-color: #9ca3af;
+        }
+
+        .chat-container {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            max-width: 1000px;
+            margin: 0 auto;
+            width: 100%;
+        }
+
+        #chatbox {
+            flex: 1;
+            padding: 24px;
+            overflow-y: auto;
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+            min-height: 0;
+        }
+
+        .message-group {
+            display: flex;
+            gap: 12px;
+            align-items: flex-start;
+        }
+
+        .message-group.user {
+            flex-direction: row-reverse;
+        }
+
+        .message-avatar {
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            flex-shrink: 0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 600;
+            font-size: 13px;
+        }
+
+        .message-avatar.agent {
+            background: linear-gradient(135deg, #14b8a6 0%, #0ea5e9 100%);
+            color: white;
+            overflow: hidden;
+        }
+
+        .message-avatar.agent img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            border-radius: 50%;
+        }
+
+        .message-avatar.user {
+            background: #f3f4f6;
+            color: #6b7280;
+        }
+
+        .message-content {
+            flex: 1;
+            max-width: 70%;
+        }
+
+        .message {
+            background: #ffffff;
+            padding: 14px 18px;
+            border-radius: 16px;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+            border: 1px solid #e5e7eb;
+            line-height: 1.5;
+            font-size: 14px;
+            color: #374151;
+            animation: messageSlide 0.3s ease-out;
+            word-wrap: break-word;
+        }
+
+        .message-group.user .message {
+            background: linear-gradient(135deg, #14b8a6 0%, #0ea5e9 100%);
+            color: white;
+            border: none;
+            box-shadow: 0 2px 8px rgba(20, 184, 166, 0.25);
+        }
+
+        .message.error {
+            background: #fef2f2;
+            border-color: #fecaca;
+            color: #dc2626;
+        }
+
+        .message.loading {
+            background: #ffffff;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            color: #6b7280;
+        }
+
+        @keyframes messageSlide {
+            from {
+                opacity: 0;
+                transform: translateY(10px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .message-time {
+            font-size: 11px;
+            color: #9ca3af;
+            margin-top: 4px;
+            text-align: right;
+        }
+
+        .message-group.user .message-time {
+            text-align: left;
+            color: rgba(255, 255, 255, 0.7);
+        }
+
+        .typing-indicator {
+            display: flex;
+            gap: 4px;
+            padding: 8px 0;
+        }
+
+        .typing-dot {
+            width: 6px;
+            height: 6px;
+            border-radius: 50%;
+            background: #14b8a6;
+            animation: typingBounce 1.4s infinite ease-in-out;
+        }
+
+        .typing-dot:nth-child(1) {
+            animation-delay: -0.32s;
+        }
+
+        .typing-dot:nth-child(2) {
+            animation-delay: -0.16s;
+        }
+
+        @keyframes typingBounce {
+
+            0%,
+            80%,
+            100% {
+                transform: scale(0);
+                opacity: 0.5;
+            }
+
+            40% {
+                transform: scale(1);
+                opacity: 1;
+            }
+        }
+
+        .input-container {
+            background: #ffffff;
+            border-top: 1px solid #e5e7eb;
+            padding: 20px 24px;
+        }
+
+        .input-wrapper {
+            max-width: 1000px;
+            margin: 0 auto;
+            display: flex;
+            gap: 12px;
+            align-items: flex-end;
+        }
+
+        .input-field {
+            flex: 1;
+            min-height: 44px;
+            max-height: 120px;
+            padding: 12px 16px;
+            border: 1px solid #d1d5db;
+            border-radius: 12px;
+            resize: none;
+            outline: none;
+            font-family: inherit;
+            font-size: 14px;
+            line-height: 1.4;
+            transition: all 0.2s;
+            background: #f9fafb;
+        }
+
+        .input-field:focus {
+            border-color: #14b8a6;
+            background: #ffffff;
+            box-shadow: 0 0 0 3px rgba(20, 184, 166, 0.1);
+        }
+
+        .input-field:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+        }
+
+        .send-button {
+            width: 44px;
+            height: 44px;
+            border: none;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #14b8a6 0%, #0ea5e9 100%);
+            color: white;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.2s;
+            box-shadow: 0 2px 8px rgba(20, 184, 166, 0.3);
+            flex-shrink: 0;
+        }
+
+        .send-button:hover:not(:disabled) {
+            transform: scale(1.05);
+            box-shadow: 0 4px 12px rgba(20, 184, 166, 0.4);
+        }
+
+        .send-button:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .send-icon {
+            width: 20px;
+            height: 20px;
+            fill: currentColor;
+        }
+
+        .welcome-card {
+            background: #ffffff;
+            border: 1px solid #e5e7eb;
+            border-radius: 16px;
+            padding: 24px;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+            text-align: center;
+            margin: 20px 0;
+        }
+
+        .welcome-card h3 {
+            color: #111827;
+            font-size: 18px;
+            font-weight: 600;
+            margin-bottom: 8px;
+        }
+
+        .welcome-card p {
+            color: #6b7280;
+            font-size: 14px;
+            line-height: 1.5;
+        }
+
+        .suggestions {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+            margin-top: 16px;
+            justify-content: center;
+        }
+
+        .suggestion-chip {
+            background: #f3f4f6;
+            border: 1px solid #d1d5db;
+            border-radius: 20px;
+            padding: 8px 14px;
+            font-size: 13px;
+            color: #374151;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .suggestion-chip:hover {
+            background: #14b8a6;
+            color: white;
+            border-color: #14b8a6;
+        }
+
+        /* Scrollbar personalizada */
+        #chatbox::-webkit-scrollbar {
+            width: 6px;
+        }
+
+        #chatbox::-webkit-scrollbar-track {
+            background: transparent;
+        }
+
+        #chatbox::-webkit-scrollbar-thumb {
+            background: #d1d5db;
+            border-radius: 3px;
+        }
+
+        #chatbox::-webkit-scrollbar-thumb:hover {
+            background: #9ca3af;
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            .chat-header {
+                padding: 12px 16px;
+            }
+
+            #chatbox {
+                padding: 16px;
+                gap: 16px;
+            }
+
+            .message-content {
+                max-width: 85%;
+            }
+
+            .input-container {
+                padding: 16px;
+            }
+
+            .agent-info h2 {
+                font-size: 14px;
+            }
+
+            .agent-status {
+                font-size: 12px;
+            }
+
+            .suggestions {
+                flex-direction: column;
+                align-items: center;
+            }
+
+            .suggestion-chip {
+                width: fit-content;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <div class="chat-header">
+        <div class="agent-info">
+            <div class="agent-avatar">
+                <img src="https://cv.sergiomarquez.dev/img/sergio_marquez_perez_ia_profile_pic.png" alt="Sergio Márquez">
+            </div>
+            <div class="agent-details">
+                <h2>Sergio Márquez</h2>
+                <div class="agent-status">
+                    <div class="status-dot"></div>
+                    <span>Desarrollador IA/ML · En línea</span>
+                </div>
+            </div>
+        </div>
+        <div class="chat-actions">
+            <button class="action-btn" onclick="clearChat()">Limpiar</button>
+            <button class="action-btn" onclick="exportChat()">Exportar</button>
+        </div>
+    </div>
+
+    <div class="chat-container">
+        <div id="chatbox">
+            <div class="welcome-card">
+                <h3>¡Hola! Soy Sergio Márquez</h3>
+                <p>Soy un desarrollador backend que ha evolucionado hacia la IA/ML. Puedes preguntarme sobre mi
+                    experiencia, proyectos, o cualquier tema relacionado con mi perfil profesional.</p>
+                <div class="suggestions">
+                    <div class="suggestion-chip" onclick="sendSuggestion('¿Cuál es tu experiencia en IA/ML?')">
+                        Experiencia IA/ML</div>
+                    <div class="suggestion-chip" onclick="sendSuggestion('Háblame de tus proyectos')">Proyectos</div>
+                    <div class="suggestion-chip" onclick="sendSuggestion('¿Qué tecnologías dominas?')">Tecnologías</div>
+                    <div class="suggestion-chip" onclick="sendSuggestion('¿Cómo puedo contactarte?')">Contacto</div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="input-container">
+        <div class="input-wrapper">
+            <textarea id="userInput" class="input-field" placeholder="Escribe tu mensaje..." rows="1"
+                autocomplete="off"></textarea>
+            <button id="sendButton" class="send-button">
+                <svg class="send-icon" viewBox="0 0 24 24">
+                    <path d="M2 21l21-9L2 3v7l15 2-15 2v7z" />
+                </svg>
+            </button>
+        </div>
+    </div>
+
+    <script>
+        const chatbox = document.getElementById('chatbox');
+        const userInput = document.getElementById('userInput');
+        const sendButton = document.getElementById('sendButton');
+        let isLoading = false;
+        let messageId = 0;
+        let currentSessionId = null; // Para mantener memoria del chat
+
+        // Event listeners
+        sendButton.addEventListener('click', sendMessage);
+        userInput.addEventListener('keydown', (event) => {
+            if (event.key === 'Enter' && !event.shiftKey) {
+                event.preventDefault();
+                sendMessage();
+            }
+        });
+
+        // Auto-resize textarea
+        userInput.addEventListener('input', function () {
+            this.style.height = 'auto';
+            this.style.height = Math.min(this.scrollHeight, 120) + 'px';
+        });
+
+        userInput.focus();
+
+        async function sendMessage() {
+            const message = userInput.value.trim();
+            if (!message || isLoading) return;
+
+            appendMessage(message, 'user');
+            userInput.value = '';
+            userInput.style.height = 'auto';
+
+            const loadingId = showLoadingMessage();
+            setLoadingState(true);
+
+            try {
+                const response = await fetch('/api/invoke', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Accept': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        message: message,
+                        session_id: currentSessionId
+                    })
+                });
+
+                removeLoadingMessage(loadingId);
+
+                if (!response.ok) {
+                    throw new Error(`Error del servidor: ${response.status} ${response.statusText}`);
+                }
+
+                const data = await response.json();
+
+                if (data.error) {
+                    appendMessage(`Error: ${data.error}`, 'agent', true);
+                } else if (data.response) {
+                    appendMessage(data.response, 'agent');
+                    // Actualizar session_id si se devuelve uno nuevo
+                    if (data.session_id) {
+                        currentSessionId = data.session_id;
+                        console.log('Session ID actualizado:', currentSessionId);
+                    }
+                } else {
+                    appendMessage('Respuesta inesperada del servidor', 'agent', true);
+                }
+
+            } catch (error) {
+                removeLoadingMessage(loadingId);
+                console.error('Error:', error);
+
+                let errorMessage = 'Error de conexión';
+                if (error.message.includes('Failed to fetch')) {
+                    errorMessage = 'No se pudo conectar con el servidor. Verifica que el agente esté ejecutándose.';
+                } else if (error.message.includes('Unexpected token')) {
+                    errorMessage = 'Error en la respuesta del servidor. El agente puede estar fallando.';
+                } else {
+                    errorMessage = error.message;
+                }
+
+                appendMessage(errorMessage, 'agent', true);
+            } finally {
+                setLoadingState(false);
+            }
+        }
+
+        function appendMessage(text, sender, isError = false) {
+            const messageGroup = document.createElement('div');
+            messageGroup.className = `message-group ${sender}`;
+            messageGroup.id = `msg-${++messageId}`;
+
+            const avatar = document.createElement('div');
+            avatar.className = `message-avatar ${sender}`;
+            if (sender === 'user') {
+                avatar.textContent = 'Tú';
+            } else {
+                const img = document.createElement('img');
+                img.src = 'https://cv.sergiomarquez.dev/img/sergio_marquez_perez_ia_profile_pic.png';
+                img.alt = 'Sergio Márquez';
+                avatar.appendChild(img);
+            }
+
+            const content = document.createElement('div');
+            content.className = 'message-content';
+
+            const message = document.createElement('div');
+            message.className = `message ${isError ? 'error' : ''}`;
+            message.textContent = text;
+
+            const time = document.createElement('div');
+            time.className = 'message-time';
+            time.textContent = new Date().toLocaleTimeString('es-ES', {
+                hour: '2-digit',
+                minute: '2-digit'
+            });
+
+            content.appendChild(message);
+            content.appendChild(time);
+            messageGroup.appendChild(avatar);
+            messageGroup.appendChild(content);
+
+            // Remove welcome card if it exists
+            const welcomeCard = chatbox.querySelector('.welcome-card');
+            if (welcomeCard && sender === 'user') {
+                welcomeCard.remove();
+            }
+
+            chatbox.appendChild(messageGroup);
+            scrollToBottom();
+        }
+
+        function showLoadingMessage() {
+            const messageGroup = document.createElement('div');
+            messageGroup.className = 'message-group agent';
+            const loadingId = `loading-${Date.now()}`;
+            messageGroup.id = loadingId;
+
+            const avatar = document.createElement('div');
+            avatar.className = 'message-avatar agent';
+            const img = document.createElement('img');
+            img.src = 'https://cv.sergiomarquez.dev/img/sergio_marquez_perez_ia_profile_pic.png';
+            img.alt = 'Sergio Márquez';
+            avatar.appendChild(img);
+
+            const content = document.createElement('div');
+            content.className = 'message-content';
+
+            const message = document.createElement('div');
+            message.className = 'message loading';
+
+            message.innerHTML = `
+                <span>Escribiendo</span>
+                <div class="typing-indicator">
+                    <div class="typing-dot"></div>
+                    <div class="typing-dot"></div>
+                    <div class="typing-dot"></div>
+                </div>
+            `;
+
+            content.appendChild(message);
+            messageGroup.appendChild(avatar);
+            messageGroup.appendChild(content);
+            chatbox.appendChild(messageGroup);
+            scrollToBottom();
+
+            return loadingId;
+        }
+
+        function removeLoadingMessage(loadingId) {
+            const loadingElement = document.getElementById(loadingId);
+            if (loadingElement) {
+                loadingElement.remove();
+            }
+        }
+
+        function setLoadingState(loading) {
+            isLoading = loading;
+            userInput.disabled = loading;
+            sendButton.disabled = loading;
+        }
+
+        function scrollToBottom() {
+            chatbox.scrollTop = chatbox.scrollHeight;
+        }
+
+        function sendSuggestion(text) {
+            userInput.value = text;
+            sendMessage();
+        }
+
+        function clearChat() {
+            const messages = chatbox.querySelectorAll('.message-group');
+            messages.forEach(msg => msg.remove());
+
+            // Re-add welcome card
+            const welcomeCard = document.createElement('div');
+            welcomeCard.className = 'welcome-card';
+            welcomeCard.innerHTML = `
+                <h3>¡Hola! Soy Sergio Márquez</h3>
+                <p>Soy un desarrollador backend que ha evolucionado hacia la IA/ML. Puedes preguntarme sobre mi experiencia, proyectos, o cualquier tema relacionado con mi perfil profesional.</p>
+                <div class="suggestions">
+                    <div class="suggestion-chip" onclick="sendSuggestion('¿Cuál es tu experiencia en IA/ML?')">Experiencia IA/ML</div>
+                    <div class="suggestion-chip" onclick="sendSuggestion('Háblame de tus proyectos')">Proyectos</div>
+                    <div class="suggestion-chip" onclick="sendSuggestion('¿Qué tecnologías dominas?')">Tecnologías</div>
+                    <div class="suggestion-chip" onclick="sendSuggestion('¿Cómo puedo contactarte?')">Contacto</div>
+                </div>
+            `;
+            chatbox.appendChild(welcomeCard);
+            messageId = 0;
+            // Reset session ID para empezar una nueva conversación
+            currentSessionId = null;
+            console.log('Chat limpiado - nueva sesión iniciada');
+        }
+
+        function exportChat() {
+            const messages = Array.from(chatbox.querySelectorAll('.message-group')).map(group => {
+                const sender = group.classList.contains('user') ? 'Usuario' : 'Sergio Márquez';
+                const text = group.querySelector('.message').textContent;
+                const time = group.querySelector('.message-time')?.textContent || '';
+                return `[${time}] ${sender}: ${text}`;
+            }).join('\n\n');
+
+            const blob = new Blob([messages], { type: 'text/plain' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = `chat-sergio-marquez-${new Date().toISOString().split('T')[0]}.txt`;
+            a.click();
+            URL.revokeObjectURL(url);
+        }
+    </script>
+</body>
+
+</html>
