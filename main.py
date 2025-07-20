@@ -1,3 +1,4 @@
+
 import uuid
 from typing import Optional
 
@@ -5,7 +6,7 @@ import uvicorn
 from fastapi import APIRouter, Depends, FastAPI, HTTPException, Request, Response
 from pydantic import BaseModel
 
-from personal_agent.agent import invoke_agent_async
+from personal_agent.agent import invoke_agent_async, cv_data
 
 
 class InvokeRequest(BaseModel):
@@ -57,6 +58,7 @@ async def invoke_agent_endpoint(
         raise HTTPException(
             status_code=500, detail=f"Ha ocurrido un error en el agente: {e}"
         )
+
 
 
 @api_router.get("/health")

@@ -2,7 +2,7 @@
 Unit tests for the FastAPI application's API endpoints.
 """
 
-from unittest.mock import AsyncMock, patch
+from unittest.mock import AsyncMock, patch, ANY
 
 import pytest
 from fastapi.testclient import TestClient
@@ -12,21 +12,19 @@ from main import app
 client = TestClient(app)
 
 
-@pytest.fixture(autouse=True)
-def override_invoke_agent():
+@pytest.fixture
+def mock_invoke_agent():
     """
-    Pytest fixture to automatically mock invoke_agent_async for all tests in this file.
+    Pytest fixture to mock invoke_agent_async.
     This isolates the API layer from the agent's internal logic.
     """
-    with patch(
-        "main.invoke_agent_async", new_callable=AsyncMock
-    ) as mock_invoke_agent:
-        # Define a default return value for the mock
-        mock_invoke_agent.return_value = "Esta es una respuesta simulada por el agente."
-        yield mock_invoke_agent
+    with patch("main.invoke_agent_async", new_callable=AsyncMock) as mock:
+        # Define a default return value for the mock, matching the expected tuple
+        mock.return_value = ("Esta es una respuesta simulada.", "mock_session_id")
+        yield mock
 
 
-def test_invoke_endpoint_success(override_invoke_agent):
+def test_invoke_endpoint_success(mock_invoke_agent):
     """
     Tests the /api/invoke endpoint with a valid message.
     Verifies that the endpoint calls the agent and returns its response.
@@ -40,30 +38,33 @@ def test_invoke_endpoint_success(override_invoke_agent):
     # Assert
     assert response.status_code == 200
     response_data = response.json()
-    assert "response" in response_data
-    assert response_data["response"] == "Esta es una respuesta simulada por el agente."
+    assert response_data["response"] == "Esta es una respuesta simulada."
+    assert response_data["session_id"] == "mock_session_id"
 
     # Verify that the mocked agent function was called correctly
-    override_invoke_agent.assert_called_once_with(user_message)
+    mock_invoke_agent.assert_called_once_with(
+        message=user_message, session_id=None, user_id=ANY
+    )
 
 
-def test_invoke_endpoint_agent_error(override_invoke_agent):
+def test_invoke_endpoint_agent_error(mock_invoke_agent):
     """
     Tests how the endpoint handles an exception from the agent.
+    It should return a 500 Internal Server Error.
     """
     # Arrange
     user_message = "Provocar un error"
     error_message = "Error simulado en el agente"
-    override_invoke_agent.side_effect = Exception(error_message)
+    mock_invoke_agent.side_effect = Exception(error_message)
 
     # Act
     response = client.post("/api/invoke", json={"message": user_message})
 
     # Assert
-    assert response.status_code == 200  # The endpoint itself handles the error gracefully
+    assert response.status_code == 500
     response_data = response.json()
-    assert "error" in response_data
-    assert error_message in response_data["error"]
+    assert "detail" in response_data
+    assert error_message in response_data["detail"]
 
 
 def test_invoke_endpoint_invalid_payload():
@@ -78,10 +79,10 @@ def test_invoke_endpoint_invalid_payload():
 def test_invoke_endpoint_missing_message():
     """
     Tests the /api/invoke endpoint with a missing message field.
-    FastAPI should return a 422 Unprocessable Entity error.
+    The custom validation should return a 400 Bad Request.
     """
-    response = client.post("/api/invoke", json={})
-    assert response.status_code == 422
+    response = client.post("/api/invoke", json={"message": ""})
+    assert response.status_code == 400
 
 
 def test_docs_endpoint():
