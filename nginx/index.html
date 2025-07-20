@@ -477,11 +477,9 @@
         <div id="chatbox">
             <div class="welcome-card">
                 <h3>¡Hola! Soy Sergio Márquez</h3>
-                <p>Soy un desarrollador backend que ha evolucionado hacia la IA/ML. Puedes preguntarme sobre mi
-                    experiencia, proyectos, o cualquier tema relacionado con mi perfil profesional.</p>
+                <p>Soy un desarrollador backend que ha evolucionado hacia la IA/ML. Puedes preguntarme sobre mi experiencia, proyectos, o cualquier tema relacionado con mi perfil profesional.</p>
                 <div class="suggestions">
-                    <div class="suggestion-chip" onclick="sendSuggestion('¿Cuál es tu experiencia en IA/ML?')">
-                        Experiencia IA/ML</div>
+                    <div class="suggestion-chip" onclick="sendSuggestion('¿Cuál es tu experiencia en IA/ML?')">Experiencia IA/ML</div>
                     <div class="suggestion-chip" onclick="sendSuggestion('Háblame de tus proyectos')">Proyectos</div>
                     <div class="suggestion-chip" onclick="sendSuggestion('¿Qué tecnologías dominas?')">Tecnologías</div>
                     <div class="suggestion-chip" onclick="sendSuggestion('¿Cómo puedo contactarte?')">Contacto</div>
@@ -492,8 +490,7 @@
 
     <div class="input-container">
         <div class="input-wrapper">
-            <textarea id="userInput" class="input-field" placeholder="Escribe tu mensaje..." rows="1"
-                autocomplete="off"></textarea>
+            <textarea id="userInput" class="input-field" placeholder="Escribe tu mensaje..." rows="1" autocomplete="off"></textarea>
             <button id="sendButton" class="send-button">
                 <svg class="send-icon" viewBox="0 0 24 24">
                     <path d="M2 21l21-9L2 3v7l15 2-15 2v7z" />
@@ -508,7 +505,7 @@
         const sendButton = document.getElementById('sendButton');
         let isLoading = false;
         let messageId = 0;
-        let currentSessionId = null; // Para mantener memoria del chat
+        let currentSessionId = null; // Mantiene la memoria del chat actual
 
         // Event listeners
         sendButton.addEventListener('click', sendMessage);
@@ -520,7 +517,7 @@
         });
 
         // Auto-resize textarea
-        userInput.addEventListener('input', function () {
+        userInput.addEventListener('input', function() {
             this.style.height = 'auto';
             this.style.height = Math.min(this.scrollHeight, 120) + 'px';
         });
@@ -554,38 +551,20 @@
                 removeLoadingMessage(loadingId);
 
                 if (!response.ok) {
-                    throw new Error(`Error del servidor: ${response.status} ${response.statusText}`);
+                    const errorData = await response.json();
+                    throw new Error(errorData.detail || `Error del servidor: ${response.status}`);
                 }
 
                 const data = await response.json();
 
-                if (data.error) {
-                    appendMessage(`Error: ${data.error}`, 'agent', true);
-                } else if (data.response) {
-                    appendMessage(data.response, 'agent');
-                    // Actualizar session_id si se devuelve uno nuevo
-                    if (data.session_id) {
-                        currentSessionId = data.session_id;
-                        console.log('Session ID actualizado:', currentSessionId);
-                    }
-                } else {
-                    appendMessage('Respuesta inesperada del servidor', 'agent', true);
-                }
+                appendMessage(data.response, 'agent');
+                currentSessionId = data.session_id;
+                console.log('Session ID actualizado:', currentSessionId);
 
             } catch (error) {
                 removeLoadingMessage(loadingId);
-                console.error('Error:', error);
-
-                let errorMessage = 'Error de conexión';
-                if (error.message.includes('Failed to fetch')) {
-                    errorMessage = 'No se pudo conectar con el servidor. Verifica que el agente esté ejecutándose.';
-                } else if (error.message.includes('Unexpected token')) {
-                    errorMessage = 'Error en la respuesta del servidor. El agente puede estar fallando.';
-                } else {
-                    errorMessage = error.message;
-                }
-
-                appendMessage(errorMessage, 'agent', true);
+                console.error('Error en la comunicación:', error);
+                appendMessage(`Error: ${error.message}`, 'agent', true);
             } finally {
                 setLoadingState(false);
             }
@@ -594,7 +573,6 @@
         function appendMessage(text, sender, isError = false) {
             const messageGroup = document.createElement('div');
             messageGroup.className = `message-group ${sender}`;
-            messageGroup.id = `msg-${++messageId}`;
 
             const avatar = document.createElement('div');
             avatar.className = `message-avatar ${sender}`;
@@ -616,17 +594,13 @@
 
             const time = document.createElement('div');
             time.className = 'message-time';
-            time.textContent = new Date().toLocaleTimeString('es-ES', {
-                hour: '2-digit',
-                minute: '2-digit'
-            });
+            time.textContent = new Date().toLocaleTimeString('es-ES', { hour: '2-digit', minute: '2-digit' });
 
             content.appendChild(message);
             content.appendChild(time);
             messageGroup.appendChild(avatar);
             messageGroup.appendChild(content);
 
-            // Remove welcome card if it exists
             const welcomeCard = chatbox.querySelector('.welcome-card');
             if (welcomeCard && sender === 'user') {
                 welcomeCard.remove();
@@ -637,47 +611,29 @@
         }
 
         function showLoadingMessage() {
+            const loadingId = `loading-${Date.now()}`;
             const messageGroup = document.createElement('div');
             messageGroup.className = 'message-group agent';
-            const loadingId = `loading-${Date.now()}`;
             messageGroup.id = loadingId;
-
-            const avatar = document.createElement('div');
-            avatar.className = 'message-avatar agent';
-            const img = document.createElement('img');
-            img.src = 'https://cv.sergiomarquez.dev/img/sergio_marquez_perez_ia_profile_pic.png';
-            img.alt = 'Sergio Márquez';
-            avatar.appendChild(img);
-
-            const content = document.createElement('div');
-            content.className = 'message-content';
-
-            const message = document.createElement('div');
-            message.className = 'message loading';
-
-            message.innerHTML = `
-                <span>Escribiendo</span>
-                <div class="typing-indicator">
-                    <div class="typing-dot"></div>
-                    <div class="typing-dot"></div>
-                    <div class="typing-dot"></div>
+            messageGroup.innerHTML = `
+                <div class="message-avatar agent">
+                    <img src="https://cv.sergiomarquez.dev/img/sergio_marquez_perez_ia_profile_pic.png" alt="Sergio Márquez">
                 </div>
-            `;
-
-            content.appendChild(message);
-            messageGroup.appendChild(avatar);
-            messageGroup.appendChild(content);
+                <div class="message-content">
+                    <div class="message loading">
+                        <div class="typing-indicator">
+                            <div class="typing-dot"></div><div class="typing-dot"></div><div class="typing-dot"></div>
+                        </div>
+                    </div>
+                </div>`;
             chatbox.appendChild(messageGroup);
             scrollToBottom();
-
             return loadingId;
         }
 
         function removeLoadingMessage(loadingId) {
             const loadingElement = document.getElementById(loadingId);
-            if (loadingElement) {
-                loadingElement.remove();
-            }
+            if (loadingElement) loadingElement.remove();
         }
 
         function setLoadingState(loading) {
@@ -696,27 +652,21 @@
         }
 
         function clearChat() {
-            const messages = chatbox.querySelectorAll('.message-group');
-            messages.forEach(msg => msg.remove());
-
-            // Re-add welcome card
-            const welcomeCard = document.createElement('div');
-            welcomeCard.className = 'welcome-card';
-            welcomeCard.innerHTML = `
-                <h3>¡Hola! Soy Sergio Márquez</h3>
-                <p>Soy un desarrollador backend que ha evolucionado hacia la IA/ML. Puedes preguntarme sobre mi experiencia, proyectos, o cualquier tema relacionado con mi perfil profesional.</p>
-                <div class="suggestions">
-                    <div class="suggestion-chip" onclick="sendSuggestion('¿Cuál es tu experiencia en IA/ML?')">Experiencia IA/ML</div>
-                    <div class="suggestion-chip" onclick="sendSuggestion('Háblame de tus proyectos')">Proyectos</div>
-                    <div class="suggestion-chip" onclick="sendSuggestion('¿Qué tecnologías dominas?')">Tecnologías</div>
-                    <div class="suggestion-chip" onclick="sendSuggestion('¿Cómo puedo contactarte?')">Contacto</div>
-                </div>
-            `;
-            chatbox.appendChild(welcomeCard);
-            messageId = 0;
-            // Reset session ID para empezar una nueva conversación
-            currentSessionId = null;
-            console.log('Chat limpiado - nueva sesión iniciada');
+            chatbox.innerHTML = ''; // Limpia el contenido
+            const welcomeCardHTML = `
+                <div class="welcome-card">
+                    <h3>¡Hola! Soy Sergio Márquez</h3>
+                    <p>Soy un desarrollador backend que ha evolucionado hacia la IA/ML. Puedes preguntarme sobre mi experiencia, proyectos, o cualquier tema relacionado con mi perfil profesional.</p>
+                    <div class="suggestions">
+                        <div class="suggestion-chip" onclick="sendSuggestion('¿Cuál es tu experiencia en IA/ML?')">Experiencia IA/ML</div>
+                        <div class="suggestion-chip" onclick="sendSuggestion('Háblame de tus proyectos')">Proyectos</div>
+                        <div class="suggestion-chip" onclick="sendSuggestion('¿Qué tecnologías dominas?')">Tecnologías</div>
+                        <div class="suggestion-chip" onclick="sendSuggestion('¿Cómo puedo contactarte?')">Contacto</div>
+                    </div>
+                </div>`;
+            chatbox.insertAdjacentHTML('beforeend', welcomeCardHTML);
+            currentSessionId = null; // Inicia una nueva conversación
+            console.log('Chat limpiado - nueva sesión iniciada.');
         }
 
         function exportChat() {
@@ -727,7 +677,7 @@
                 return `[${time}] ${sender}: ${text}`;
             }).join('\n\n');
 
-            const blob = new Blob([messages], { type: 'text/plain' });
+            const blob = new Blob([messages], { type: 'text/plain;charset=utf-8' });
             const url = URL.createObjectURL(blob);
             const a = document.createElement('a');
             a.href = url;
