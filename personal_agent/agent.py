@@ -47,17 +47,29 @@ async def invoke_agent_async(
     message: str, session_id: Optional[str], user_id: str
 ) -> Tuple[str, str]:
     """
-    Invoca al agente usando el Runner, que gestiona la sesión y el contexto.
+    Invoca al agente con una gestión de sesión robusta.
+    Si el session_id proporcionado no es válido, crea uno nuevo.
     """
     try:
+        if session_id:
+            try:
+                await session_service.get_session(
+                    app_name=APP_NAME, user_id=user_id, session_id=session_id
+                )
+                print(f"DEBUG: Sesión existente y válida encontrada: {session_id}")
+            except KeyError:
+                print(
+                    f"WARN: El session_id '{session_id}' no se encontró. Se creará uno nuevo."
+                )
+                session_id = None
+
         if session_id is None:
             session_id = f"session_{uuid.uuid4().hex}"
             print(
-                f"DEBUG: No hay sesión. Se usará el nuevo ID: {session_id} para el usuario {user_id}"
+                f"DEBUG: Creando nueva sesión con ID: {session_id} para el usuario {user_id}"
             )
-        else:
-            print(
-                f"DEBUG: Usando sesión existente: {session_id} para el usuario {user_id}"
+            await session_service.create_session(
+                app_name=APP_NAME, user_id=user_id, session_id=session_id
             )
 
         content = types.Content(role="user", parts=[types.Part(text=message)])
@@ -75,6 +87,9 @@ async def invoke_agent_async(
                 break
 
         print(f"DEBUG: Respuesta final para sesión {session_id}: {final_response_text}")
+
+        if final_response_text is None:
+            final_response_text = "No se pudo obtener una respuesta del agente."
 
         return final_response_text, session_id
 
