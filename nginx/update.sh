@@ -80,6 +80,8 @@ else
     docker compose up -d >> "$LOG_FILE" 2>&1
 fi
 
+sudo systemctl restart nginx
+
 log "3️⃣ Esperando 20 segundos a que el servicio se inicie..."
 sleep 20
 
@@ -100,6 +102,16 @@ if command -v curl > /dev/null 2>&1; then
         log "✅ El frontend está respondiendo correctamente (HTTP: $HTTP_CODE)"
     else
         log "⚠️ El frontend no responde como se esperaba (HTTP: $HTTP_CODE). Puede haber un problema con Nginx."
+    fi
+
+    # Verificar que el backend responde en /api/health
+    BACKEND_HEALTH_URL="https://chat.sergiomarquez.dev/api/health"
+    log "🔗 Verificando que el backend responde para $BACKEND_HEALTH_URL..."
+    BACKEND_HEALTH_RESPONSE=$(curl -s --max-time 10 "$BACKEND_HEALTH_URL" || echo "")
+    if echo "$BACKEND_HEALTH_RESPONSE" | grep -q '"status"[ ]*:[ ]*"OK"'; then
+        log "✅ El backend está respondiendo correctamente (status: OK)"
+    else
+        log "⚠️ El backend no responde como se esperaba. Respuesta: $BACKEND_HEALTH_RESPONSE"
     fi
 else
     log "⚠️ curl no disponible, no se puede verificar conectividad"

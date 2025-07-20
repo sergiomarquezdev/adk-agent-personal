@@ -59,6 +59,14 @@ async def invoke_agent_endpoint(
         )
 
 
+@api_router.get("/health")
+async def health_check():
+    """
+    Endpoint de health check: responde status OK si el backend está corriendo.
+    """
+    return {"status": "OK"}
+
+
 app = FastAPI(
     title="API del Agente Personal de Sergio",
     description="Un servidor para interactuar con el agente personal basado en ADK y Gemini.",
