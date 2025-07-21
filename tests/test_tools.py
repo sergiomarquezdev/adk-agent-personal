@@ -39,7 +39,7 @@ class TestLoadCvData:
         """Test cuando falla la petición HTTP."""
         # Arrange
         mock_requests_get.side_effect = ConnectionError("Error de conexión")
-        mock_open = mocker.patch("builtins.open", side_effect=FileNotFoundError())
+        mocker.patch("builtins.open", side_effect=FileNotFoundError())
 
         # Act
         result = load_cv_data()

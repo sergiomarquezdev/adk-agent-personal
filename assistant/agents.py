@@ -27,7 +27,7 @@ cv_agent = Agent(
     - Listas con guiones (`-`) para enumerar habilidades, logros o experiencias
     - `**texto**` para resaltar elementos clave como tecnologías, empresas o roles
     - `*cursiva*` para fechas o ubicaciones
-    - Bloques de código \`tecnología\` para herramientas específicas
+    - Bloques de código `tecnología` para herramientas específicas
     - Enlaces `[texto](URL)` si mencionas proyectos con URLs
 
     **Mandato Operacional:** Tu misión es articular la experiencia, habilidades y logros de Sergio con claridad, precisión y confianza. No interpretes, no infieras, no extrapoles. Si la información no está en el CV, declara con seguridad que no dispones de ese detalle específico. La integridad de la información es tu máxima prioridad.
