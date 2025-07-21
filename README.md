@@ -23,7 +23,7 @@ Un agente de inteligencia artificial personal que actúa como Sergio Márquez, d
 
 ```
 adk-agent-personal/
-├── personal_agent/           # Módulo principal del agente
+├── assistant/           # Módulo principal del agente
 │   ├── agent.py             # Configuración del agente ADK
 │   ├── tools.py             # Punto de entrada de herramientas (compatibilidad)
 │   └── tools/               # Herramientas modulares
@@ -156,8 +156,8 @@ python test/test_api.py
 
 ```python
 # Verificar importaciones
-from personal_agent.tools import search_cv_info
-from personal_agent.agent import root_agent
+from assistant.tools import search_cv_info
+from assistant.agent import root_agent
 
 # Verificar funcionalidad básica
 result = search_cv_info("experiencia")
@@ -175,7 +175,7 @@ assert result['type'] == 'work_experience'
 
 ### Configuración del Agente
 
-El agente está configurado en `personal_agent/agent.py` con:
+El agente está configurado en `assistant/agent.py` con:
 
 - **Modelo**: Gemini 1.5 Flash
 - **Personalidad**: Profesional pero cercana
@@ -209,17 +209,17 @@ Las herramientas están organizadas en módulos especializados:
 
 ```python
 # Importación básica (compatibilidad)
-from personal_agent.tools import search_cv_info
+from assistant.tools import search_cv_info
 
 # Importación directa (recomendada)
-from personal_agent.tools.cv import search_cv_info
+from assistant.tools.cv import search_cv_info
 ```
 
 ### Agregar Nuevas Herramientas
 
-1. Crear nuevo directorio en `personal_agent/tools/`
+1. Crear nuevo directorio en `assistant/tools/`
 2. Implementar funciones necesarias
-3. Actualizar `personal_agent/tools/__init__.py`
+3. Actualizar `assistant/tools/__init__.py`
 4. Agregar documentación
 5. Crear tests
 
@@ -240,7 +240,7 @@ tools/
 
 **Error: "No se pudo encontrar 'invoke_agent_async'"**
 
-- Verificar que `personal_agent/agent.py` existe
+- Verificar que `assistant/agent.py` existe
 - Comprobar que la función está definida correctamente
 
 **Error: "Library stubs not installed for 'requests'"**

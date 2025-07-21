@@ -1,3 +1,5 @@
+# main.py
+# Define la API web con FastAPI y gestiona las peticiones/respuestas HTTP.
 
 import uuid
 from typing import Optional
@@ -6,7 +8,10 @@ import uvicorn
 from fastapi import APIRouter, Depends, FastAPI, HTTPException, Request, Response
 from pydantic import BaseModel
 
-from personal_agent.agent import invoke_agent_async, cv_data
+# Importamos la lógica de invocación desde la nueva capa de servicios.
+from assistant.services import invoke_agent_async
+
+# --- Modelos de Datos y Gestión de Cookies ---
 
 
 class InvokeRequest(BaseModel):
@@ -19,13 +24,13 @@ class InvokeResponse(BaseModel):
     session_id: str
 
 
-USER_COOKIE_NAME = "personal_agent_user_id"
+USER_COOKIE_NAME = "assistant_user_id"
 
 
 async def get_user_id(request: Request, response: Response) -> str:
+    """Obtiene el ID de usuario de la cookie o crea uno nuevo si no existe."""
     user_id = request.cookies.get(USER_COOKIE_NAME)
     if not user_id:
-        print("DEBUG: No se encontró cookie de usuario. Creando una nueva.")
         user_id = f"user_{uuid.uuid4().hex}"
         response.set_cookie(
             key=USER_COOKIE_NAME,
@@ -33,10 +38,10 @@ async def get_user_id(request: Request, response: Response) -> str:
             max_age=60 * 60 * 24 * 365,  # 1 año
             httponly=True,
         )
-    else:
-        print(f"DEBUG: Usuario reconocido con ID: {user_id}")
     return user_id
 
+
+# --- Definición de Rutas de la API ---
 
 api_router = APIRouter(prefix="/api")
 
@@ -45,6 +50,7 @@ api_router = APIRouter(prefix="/api")
 async def invoke_agent_endpoint(
     request: InvokeRequest, user_id: str = Depends(get_user_id)
 ):
+    """Endpoint principal para interactuar con el agente."""
     if not request.message:
         raise HTTPException(status_code=400, detail="El mensaje no puede estar vacío.")
 
@@ -60,23 +66,20 @@ async def invoke_agent_endpoint(
         )
 
 
-
 @api_router.get("/health")
 async def health_check():
-    """
-    Endpoint de health check: responde status OK si el backend está corriendo.
-    """
+    """Endpoint de health check para verificar que el servicio está activo."""
     return {"status": "OK"}
 
 
-app = FastAPI(
-    title="API del Agente Personal de Sergio",
-    description="Un servidor para interactuar con el agente personal basado en ADK y Gemini.",
-    version="1.2.0",
-)
+# --- Creación de la Aplicación FastAPI ---
 
+app = FastAPI(
+    title="API del Asistente Personal de Sergio",
+    description="Un servidor para interactuar con un sistema multi-agente basado en ADK.",
+    version="2.0.0",
+)
 app.include_router(api_router)
 
-
 if __name__ == "__main__":
-    uvicorn.run(app, host="0.0.0.0", port=8000)
+    uvicorn.run("main:app", host="0.0.0.0", port=8000, reload=True)

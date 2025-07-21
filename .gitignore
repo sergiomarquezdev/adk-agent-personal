@@ -264,7 +264,6 @@ datasets/
 
 # Google Cloud/AI specific
 *.json
-!cv.json
 !requirements.txt
 !package.json
 !tsconfig.json
