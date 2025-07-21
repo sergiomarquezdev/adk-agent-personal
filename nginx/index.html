@@ -29,6 +29,9 @@
             align-items: center;
             justify-content: space-between;
             box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+            position: sticky;
+            top: 0;
+            z-index: 10;
         }
 
         .agent-info {
@@ -56,7 +59,6 @@
             width: 100%;
             height: 100%;
             object-fit: cover;
-            border-radius: 50%;
         }
 
         .agent-details h2 {
@@ -83,15 +85,8 @@
         }
 
         @keyframes pulse {
-
-            0%,
-            100% {
-                opacity: 1;
-            }
-
-            50% {
-                opacity: 0.5;
-            }
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.5; }
         }
 
         .chat-actions {
@@ -166,7 +161,6 @@
             width: 100%;
             height: 100%;
             object-fit: cover;
-            border-radius: 50%;
         }
 
         .message-avatar.user {
@@ -183,7 +177,7 @@
             background: #ffffff;
             padding: 14px 18px;
             border-radius: 16px;
-            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
             border: 1px solid #e5e7eb;
             line-height: 1.5;
             font-size: 14px;
@@ -205,20 +199,11 @@
             color: #dc2626;
         }
 
-        .message.loading {
-            background: #ffffff;
-            display: flex;
-            align-items: center;
-            gap: 10px;
-            color: #6b7280;
-        }
-
         @keyframes messageSlide {
             from {
                 opacity: 0;
                 transform: translateY(10px);
             }
-
             to {
                 opacity: 1;
                 transform: translateY(0);
@@ -229,18 +214,23 @@
             font-size: 11px;
             color: #9ca3af;
             margin-top: 4px;
-            text-align: right;
+            padding: 0 8px;
         }
 
-        .message-group.user .message-time {
-            text-align: left;
-            color: rgba(255, 255, 255, 0.7);
-        }
+        .message-group.agent .message-time { text-align: left; }
+        .message-group.user .message-time { text-align: right; }
+        .message-group.user .message-time { color: rgba(255, 255, 255, 0.7); }
 
         .typing-indicator {
             display: flex;
+            align-items: center;
+            gap: 10px;
+            color: #6b7280;
+        }
+
+        .typing-indicator span {
+            display: flex;
             gap: 4px;
-            padding: 8px 0;
         }
 
         .typing-dot {
@@ -251,33 +241,20 @@
             animation: typingBounce 1.4s infinite ease-in-out;
         }
 
-        .typing-dot:nth-child(1) {
-            animation-delay: -0.32s;
-        }
-
-        .typing-dot:nth-child(2) {
-            animation-delay: -0.16s;
-        }
+        .typing-dot:nth-child(1) { animation-delay: -0.32s; }
+        .typing-dot:nth-child(2) { animation-delay: -0.16s; }
 
         @keyframes typingBounce {
-
-            0%,
-            80%,
-            100% {
-                transform: scale(0);
-                opacity: 0.5;
-            }
-
-            40% {
-                transform: scale(1);
-                opacity: 1;
-            }
+            0%, 80%, 100% { transform: scale(0); opacity: 0.5; }
+            40% { transform: scale(1); opacity: 1; }
         }
 
         .input-container {
             background: #ffffff;
             border-top: 1px solid #e5e7eb;
             padding: 20px 24px;
+            position: sticky;
+            bottom: 0;
         }
 
         .input-wrapper {
@@ -353,7 +330,7 @@
             border: 1px solid #e5e7eb;
             border-radius: 16px;
             padding: 24px;
-            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
             text-align: center;
             margin: 20px 0;
         }
@@ -388,6 +365,7 @@
             color: #374151;
             cursor: pointer;
             transition: all 0.2s;
+            font-family: inherit;
         }
 
         .suggestion-chip:hover {
@@ -396,68 +374,30 @@
             border-color: #14b8a6;
         }
 
-        /* Scrollbar personalizada */
-        #chatbox::-webkit-scrollbar {
-            width: 6px;
-        }
+        #chatbox::-webkit-scrollbar { width: 6px; }
+        #chatbox::-webkit-scrollbar-track { background: transparent; }
+        #chatbox::-webkit-scrollbar-thumb { background: #d1d5db; border-radius: 3px; }
+        #chatbox::-webkit-scrollbar-thumb:hover { background: #9ca3af; }
 
-        #chatbox::-webkit-scrollbar-track {
-            background: transparent;
-        }
-
-        #chatbox::-webkit-scrollbar-thumb {
-            background: #d1d5db;
-            border-radius: 3px;
-        }
-
-        #chatbox::-webkit-scrollbar-thumb:hover {
-            background: #9ca3af;
-        }
-
-        /* Responsive */
         @media (max-width: 768px) {
-            .chat-header {
-                padding: 12px 16px;
-            }
-
-            #chatbox {
-                padding: 16px;
-                gap: 16px;
-            }
-
-            .message-content {
-                max-width: 85%;
-            }
-
-            .input-container {
-                padding: 16px;
-            }
-
-            .agent-info h2 {
-                font-size: 14px;
-            }
-
-            .agent-status {
-                font-size: 12px;
-            }
-
-            .suggestions {
-                flex-direction: column;
-                align-items: center;
-            }
-
-            .suggestion-chip {
-                width: fit-content;
-            }
+            .chat-header, .input-container { padding: 12px 16px; }
+            #chatbox { padding: 16px; gap: 16px; }
+            .message-content { max-width: 85%; }
+            .agent-details h2 { font-size: 14px; }
+            .agent-status { font-size: 12px; }
+            .suggestions { flex-direction: column; align-items: center; }
+            .suggestion-chip { width: fit-content; }
         }
     </style>
 </head>
 
 <body>
-    <div class="chat-header">
+    <header class="chat-header">
         <div class="agent-info">
             <div class="agent-avatar">
-                <img src="https://cv.sergiomarquez.dev/img/sergio_marquez_perez_ia_profile_pic.png" alt="Sergio Márquez">
+                <img src="https://cv.sergiomarquez.dev/img/sergio_marquez_perez_ia_profile_pic.png"
+                     alt="Avatar de Sergio Márquez"
+                     onerror="this.onerror=null; this.outerHTML = 'SM';">
             </div>
             <div class="agent-details">
                 <h2>Sergio Márquez</h2>
@@ -468,46 +408,44 @@
             </div>
         </div>
         <div class="chat-actions">
-            <button class="action-btn" onclick="clearChat()">Limpiar</button>
-            <button class="action-btn" onclick="exportChat()">Exportar</button>
+            <button class="action-btn" onclick="clearChat()" title="Limpiar conversación">Limpiar</button>
+            <button class="action-btn" onclick="exportChat()" title="Exportar chat a .txt">Exportar</button>
         </div>
-    </div>
+    </header>
 
-    <div class="chat-container">
+    <main class="chat-container">
         <div id="chatbox">
             <div class="welcome-card">
-                <h3>¡Hola! Soy Sergio Márquez</h3>
-                <p>Soy un desarrollador backend que ha evolucionado hacia la IA/ML. Puedes preguntarme sobre mi experiencia, proyectos, o cualquier tema relacionado con mi perfil profesional.</p>
+                <h3>¡Hola! Soy el asistente IA de Sergio Márquez</h3>
+                <p>He sido entrenado para responder preguntas sobre su experiencia, proyectos y artículos del blog. ¿En qué puedo ayudarte?</p>
                 <div class="suggestions">
-                    <div class="suggestion-chip" onclick="sendSuggestion('¿Cuál es tu experiencia en IA/ML?')">Experiencia IA/ML</div>
-                    <div class="suggestion-chip" onclick="sendSuggestion('Háblame de tus proyectos')">Proyectos</div>
-                    <div class="suggestion-chip" onclick="sendSuggestion('¿Qué tecnologías dominas?')">Tecnologías</div>
-                    <div class="suggestion-chip" onclick="sendSuggestion('¿Cómo puedo contactarte?')">Contacto</div>
+                    <button class="suggestion-chip" onclick="sendSuggestion('¿Cuál es tu experiencia en IA/ML?')">Experiencia IA/ML</button>
+                    <button class="suggestion-chip" onclick="sendSuggestion('Háblame de tus proyectos')">Proyectos</button>
+                    <button class="suggestion-chip" onclick="sendSuggestion('¿Has escrito sobre Docker?')">Blog sobre Docker</button>
                 </div>
             </div>
         </div>
-    </div>
+    </main>
 
-    <div class="input-container">
+    <footer class="input-container">
         <div class="input-wrapper">
             <textarea id="userInput" class="input-field" placeholder="Escribe tu mensaje..." rows="1" autocomplete="off"></textarea>
-            <button id="sendButton" class="send-button">
+            <button id="sendButton" class="send-button" aria-label="Enviar mensaje">
                 <svg class="send-icon" viewBox="0 0 24 24">
                     <path d="M2 21l21-9L2 3v7l15 2-15 2v7z" />
                 </svg>
             </button>
         </div>
-    </div>
+    </footer>
 
     <script>
         const chatbox = document.getElementById('chatbox');
         const userInput = document.getElementById('userInput');
         const sendButton = document.getElementById('sendButton');
         let isLoading = false;
-        let messageId = 0;
-        let currentSessionId = null; // Mantiene la memoria del chat actual
+        let currentSessionId = null;
 
-        // Event listeners
+        // --- Event Listeners ---
         sendButton.addEventListener('click', sendMessage);
         userInput.addEventListener('keydown', (event) => {
             if (event.key === 'Enter' && !event.shiftKey) {
@@ -515,24 +453,22 @@
                 sendMessage();
             }
         });
-
-        // Auto-resize textarea
-        userInput.addEventListener('input', function() {
-            this.style.height = 'auto';
-            this.style.height = Math.min(this.scrollHeight, 120) + 'px';
+        userInput.addEventListener('input', () => {
+            userInput.style.height = 'auto';
+            userInput.style.height = `${Math.min(userInput.scrollHeight, 120)}px`;
         });
-
         userInput.focus();
 
+        // --- Core Functions ---
         async function sendMessage() {
-            const message = userInput.value.trim();
-            if (!message || isLoading) return;
+            const messageText = userInput.value.trim();
+            if (!messageText || isLoading) return;
 
-            appendMessage(message, 'user');
+            appendMessage(messageText, 'user');
             userInput.value = '';
             userInput.style.height = 'auto';
 
-            const loadingId = showLoadingMessage();
+            const loadingId = showLoadingIndicator();
             setLoadingState(true);
 
             try {
@@ -543,26 +479,24 @@
                         'Accept': 'application/json'
                     },
                     body: JSON.stringify({
-                        message: message,
+                        message: messageText,
                         session_id: currentSessionId
                     })
                 });
 
-                removeLoadingMessage(loadingId);
+                removeElement(loadingId);
 
                 if (!response.ok) {
-                    const errorData = await response.json();
-                    throw new Error(errorData.detail || `Error del servidor: ${response.status}`);
+                    const errorData = await response.json().catch(() => ({ detail: `Error del servidor: ${response.status}` }));
+                    throw new Error(errorData.detail);
                 }
 
                 const data = await response.json();
-
                 appendMessage(data.response, 'agent');
                 currentSessionId = data.session_id;
-                console.log('Session ID actualizado:', currentSessionId);
 
             } catch (error) {
-                removeLoadingMessage(loadingId);
+                removeElement(loadingId);
                 console.error('Error en la comunicación:', error);
                 appendMessage(`Error: ${error.message}`, 'agent', true);
             } finally {
@@ -581,7 +515,8 @@
             } else {
                 const img = document.createElement('img');
                 img.src = 'https://cv.sergiomarquez.dev/img/sergio_marquez_perez_ia_profile_pic.png';
-                img.alt = 'Sergio Márquez';
+                img.alt = 'Avatar de Sergio Márquez';
+                img.onerror = function() { this.onerror=null; this.outerHTML = 'SM'; };
                 avatar.appendChild(img);
             }
 
@@ -590,16 +525,14 @@
 
             const message = document.createElement('div');
             message.className = `message ${isError ? 'error' : ''}`;
-            message.textContent = text;
+            message.textContent = text; // Usar textContent previene XSS
 
             const time = document.createElement('div');
             time.className = 'message-time';
             time.textContent = new Date().toLocaleTimeString('es-ES', { hour: '2-digit', minute: '2-digit' });
 
-            content.appendChild(message);
-            content.appendChild(time);
-            messageGroup.appendChild(avatar);
-            messageGroup.appendChild(content);
+            content.append(message, time);
+            messageGroup.append(avatar, content);
 
             const welcomeCard = chatbox.querySelector('.welcome-card');
             if (welcomeCard && sender === 'user') {
@@ -610,20 +543,21 @@
             scrollToBottom();
         }
 
-        function showLoadingMessage() {
+        // --- UI Helper Functions ---
+        function showLoadingIndicator() {
             const loadingId = `loading-${Date.now()}`;
             const messageGroup = document.createElement('div');
             messageGroup.className = 'message-group agent';
             messageGroup.id = loadingId;
             messageGroup.innerHTML = `
                 <div class="message-avatar agent">
-                    <img src="https://cv.sergiomarquez.dev/img/sergio_marquez_perez_ia_profile_pic.png" alt="Sergio Márquez">
+                    <img src="https://cv.sergiomarquez.dev/img/sergio_marquez_perez_ia_profile_pic.png" alt="Avatar de Sergio Márquez" onerror="this.onerror=null; this.outerHTML = 'SM';">
                 </div>
                 <div class="message-content">
-                    <div class="message loading">
-                        <div class="typing-indicator">
+                    <div class="message typing-indicator">
+                        <span>
                             <div class="typing-dot"></div><div class="typing-dot"></div><div class="typing-dot"></div>
-                        </div>
+                        </span>
                     </div>
                 </div>`;
             chatbox.appendChild(messageGroup);
@@ -631,15 +565,16 @@
             return loadingId;
         }
 
-        function removeLoadingMessage(loadingId) {
-            const loadingElement = document.getElementById(loadingId);
-            if (loadingElement) loadingElement.remove();
+        function removeElement(elementId) {
+            const element = document.getElementById(elementId);
+            if (element) element.remove();
         }
 
         function setLoadingState(loading) {
             isLoading = loading;
             userInput.disabled = loading;
             sendButton.disabled = loading;
+            if (!loading) userInput.focus();
         }
 
         function scrollToBottom() {
@@ -651,22 +586,19 @@
             sendMessage();
         }
 
+        // --- Chat Actions ---
         function clearChat() {
-            chatbox.innerHTML = ''; // Limpia el contenido
-            const welcomeCardHTML = `
+            chatbox.innerHTML = `
                 <div class="welcome-card">
-                    <h3>¡Hola! Soy Sergio Márquez</h3>
-                    <p>Soy un desarrollador backend que ha evolucionado hacia la IA/ML. Puedes preguntarme sobre mi experiencia, proyectos, o cualquier tema relacionado con mi perfil profesional.</p>
+                    <h3>¡Hola! Soy el asistente IA de Sergio Márquez</h3>
+                    <p>He sido entrenado para responder preguntas sobre su experiencia, proyectos y artículos del blog. ¿En qué puedo ayudarte?</p>
                     <div class="suggestions">
-                        <div class="suggestion-chip" onclick="sendSuggestion('¿Cuál es tu experiencia en IA/ML?')">Experiencia IA/ML</div>
-                        <div class="suggestion-chip" onclick="sendSuggestion('Háblame de tus proyectos')">Proyectos</div>
-                        <div class="suggestion-chip" onclick="sendSuggestion('¿Qué tecnologías dominas?')">Tecnologías</div>
-                        <div class="suggestion-chip" onclick="sendSuggestion('¿Cómo puedo contactarte?')">Contacto</div>
+                        <button class="suggestion-chip" onclick="sendSuggestion('¿Cuál es tu experiencia en IA/ML?')">Experiencia IA/ML</button>
+                        <button class="suggestion-chip" onclick="sendSuggestion('Háblame de tus proyectos')">Proyectos</button>
+                        <button class="suggestion-chip" onclick="sendSuggestion('¿Has escrito sobre Docker?')">Blog sobre Docker</button>
                     </div>
                 </div>`;
-            chatbox.insertAdjacentHTML('beforeend', welcomeCardHTML);
-            currentSessionId = null; // Inicia una nueva conversación
-            console.log('Chat limpiado - nueva sesión iniciada.');
+            currentSessionId = null;
         }
 
         function exportChat() {
@@ -682,10 +614,11 @@
             const a = document.createElement('a');
             a.href = url;
             a.download = `chat-sergio-marquez-${new Date().toISOString().split('T')[0]}.txt`;
+            document.body.appendChild(a);
             a.click();
+            document.body.removeChild(a);
             URL.revokeObjectURL(url);
         }
     </script>
 </body>
-
 </html>
