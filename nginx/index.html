@@ -6,6 +6,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Sergio Márquez - AI Assistant</title>
     <link rel="icon" type="image/png" href="./favicon.png">
+    <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
     <style>
         * {
             margin: 0;
@@ -20,6 +21,51 @@
             display: flex;
             flex-direction: column;
         }
+
+        /* Estilos para el contenido renderizado por Markdown */
+        .message-content .message ul,
+        .message-content .message ol {
+            padding-left: 20px;
+            margin-top: 8px;
+            margin-bottom: 8px;
+        }
+
+        .message-content .message li {
+            margin-bottom: 4px;
+        }
+
+        .message-content .message p {
+            margin-bottom: 8px;
+        }
+
+        .message-content .message p:last-child {
+            margin-bottom: 0;
+        }
+
+        .message-content .message code {
+            background-color: #f3f4f6;
+            padding: 2px 4px;
+            border-radius: 4px;
+            font-family: 'Courier New', Courier, monospace;
+        }
+
+        .message-content .message pre {
+            background-color: #f3f4f6;
+            padding: 12px;
+            border-radius: 8px;
+            overflow-x: auto;
+            margin: 8px 0;
+        }
+
+        .message-content .message a {
+            color: #0ea5e9;
+            text-decoration: none;
+        }
+
+        .message-content .message a:hover {
+            text-decoration: underline;
+        }
+
 
         .chat-header {
             background: #ffffff;
@@ -85,8 +131,15 @@
         }
 
         @keyframes pulse {
-            0%, 100% { opacity: 1; }
-            50% { opacity: 0.5; }
+
+            0%,
+            100% {
+                opacity: 1;
+            }
+
+            50% {
+                opacity: 0.5;
+            }
         }
 
         .chat-actions {
@@ -204,6 +257,7 @@
                 opacity: 0;
                 transform: translateY(10px);
             }
+
             to {
                 opacity: 1;
                 transform: translateY(0);
@@ -217,9 +271,17 @@
             padding: 0 8px;
         }
 
-        .message-group.agent .message-time { text-align: left; }
-        .message-group.user .message-time { text-align: right; }
-        .message-group.user .message-time { color: rgba(255, 255, 255, 0.7); }
+        .message-group.agent .message-time {
+            text-align: left;
+        }
+
+        .message-group.user .message-time {
+            text-align: right;
+        }
+
+        .message-group.user .message-time {
+            color: rgba(255, 255, 255, 0.7);
+        }
 
         .typing-indicator {
             display: flex;
@@ -241,12 +303,27 @@
             animation: typingBounce 1.4s infinite ease-in-out;
         }
 
-        .typing-dot:nth-child(1) { animation-delay: -0.32s; }
-        .typing-dot:nth-child(2) { animation-delay: -0.16s; }
+        .typing-dot:nth-child(1) {
+            animation-delay: -0.32s;
+        }
+
+        .typing-dot:nth-child(2) {
+            animation-delay: -0.16s;
+        }
 
         @keyframes typingBounce {
-            0%, 80%, 100% { transform: scale(0); opacity: 0.5; }
-            40% { transform: scale(1); opacity: 1; }
+
+            0%,
+            80%,
+            100% {
+                transform: scale(0);
+                opacity: 0.5;
+            }
+
+            40% {
+                transform: scale(1);
+                opacity: 1;
+            }
         }
 
         .input-container {
@@ -374,19 +451,55 @@
             border-color: #14b8a6;
         }
 
-        #chatbox::-webkit-scrollbar { width: 6px; }
-        #chatbox::-webkit-scrollbar-track { background: transparent; }
-        #chatbox::-webkit-scrollbar-thumb { background: #d1d5db; border-radius: 3px; }
-        #chatbox::-webkit-scrollbar-thumb:hover { background: #9ca3af; }
+        #chatbox::-webkit-scrollbar {
+            width: 6px;
+        }
+
+        #chatbox::-webkit-scrollbar-track {
+            background: transparent;
+        }
+
+        #chatbox::-webkit-scrollbar-thumb {
+            background: #d1d5db;
+            border-radius: 3px;
+        }
+
+        #chatbox::-webkit-scrollbar-thumb:hover {
+            background: #9ca3af;
+        }
 
         @media (max-width: 768px) {
-            .chat-header, .input-container { padding: 12px 16px; }
-            #chatbox { padding: 16px; gap: 16px; }
-            .message-content { max-width: 85%; }
-            .agent-details h2 { font-size: 14px; }
-            .agent-status { font-size: 12px; }
-            .suggestions { flex-direction: column; align-items: center; }
-            .suggestion-chip { width: fit-content; }
+
+            .chat-header,
+            .input-container {
+                padding: 12px 16px;
+            }
+
+            #chatbox {
+                padding: 16px;
+                gap: 16px;
+            }
+
+            .message-content {
+                max-width: 85%;
+            }
+
+            .agent-details h2 {
+                font-size: 14px;
+            }
+
+            .agent-status {
+                font-size: 12px;
+            }
+
+            .suggestions {
+                flex-direction: column;
+                align-items: center;
+            }
+
+            .suggestion-chip {
+                width: fit-content;
+            }
         }
     </style>
 </head>
@@ -396,8 +509,7 @@
         <div class="agent-info">
             <div class="agent-avatar">
                 <img src="https://cv.sergiomarquez.dev/img/sergio_marquez_perez_ia_profile_pic.png"
-                     alt="Avatar de Sergio Márquez"
-                     onerror="this.onerror=null; this.outerHTML = 'SM';">
+                    alt="Avatar de Sergio Márquez" onerror="this.onerror=null; this.outerHTML = 'SM';">
             </div>
             <div class="agent-details">
                 <h2>Sergio Márquez</h2>
@@ -417,11 +529,15 @@
         <div id="chatbox">
             <div class="welcome-card">
                 <h3>¡Hola! Soy el asistente IA de Sergio Márquez</h3>
-                <p>He sido entrenado para responder preguntas sobre su experiencia, proyectos y artículos del blog. ¿En qué puedo ayudarte?</p>
+                <p>He sido entrenado para responder preguntas sobre su experiencia, proyectos y artículos del blog. ¿En
+                    qué puedo ayudarte?</p>
                 <div class="suggestions">
-                    <button class="suggestion-chip" onclick="sendSuggestion('¿Cuál es tu experiencia en IA/ML?')">Experiencia IA/ML</button>
-                    <button class="suggestion-chip" onclick="sendSuggestion('Háblame de tus proyectos')">Proyectos</button>
-                    <button class="suggestion-chip" onclick="sendSuggestion('¿Has escrito sobre Docker?')">Blog sobre Docker</button>
+                    <button class="suggestion-chip"
+                        onclick="sendSuggestion('¿Cuál es tu experiencia en IA/ML?')">Experiencia IA/ML</button>
+                    <button class="suggestion-chip"
+                        onclick="sendSuggestion('Háblame de tus proyectos')">Proyectos</button>
+                    <button class="suggestion-chip" onclick="sendSuggestion('¿Has escrito sobre Docker?')">Blog sobre
+                        Docker</button>
                 </div>
             </div>
         </div>
@@ -429,7 +545,8 @@
 
     <footer class="input-container">
         <div class="input-wrapper">
-            <textarea id="userInput" class="input-field" placeholder="Escribe tu mensaje..." rows="1" autocomplete="off"></textarea>
+            <textarea id="userInput" class="input-field" placeholder="Escribe tu mensaje..." rows="1"
+                autocomplete="off"></textarea>
             <button id="sendButton" class="send-button" aria-label="Enviar mensaje">
                 <svg class="send-icon" viewBox="0 0 24 24">
                     <path d="M2 21l21-9L2 3v7l15 2-15 2v7z" />
@@ -516,7 +633,7 @@
                 const img = document.createElement('img');
                 img.src = 'https://cv.sergiomarquez.dev/img/sergio_marquez_perez_ia_profile_pic.png';
                 img.alt = 'Avatar de Sergio Márquez';
-                img.onerror = function() { this.onerror=null; this.outerHTML = 'SM'; };
+                img.onerror = function () { this.onerror = null; this.outerHTML = 'SM'; };
                 avatar.appendChild(img);
             }
 
@@ -525,7 +642,15 @@
 
             const message = document.createElement('div');
             message.className = `message ${isError ? 'error' : ''}`;
-            message.textContent = text; // Usar textContent previene XSS
+
+            // 2. Aquí está la magia: usamos marked.parse() para convertir Markdown a HTML
+            // La librería marked se encarga de sanitizar el resultado para prevenir XSS.
+            if (sender === 'agent') {
+                message.innerHTML = marked.parse(text);
+            } else {
+                // Para los mensajes del usuario, seguimos usando textContent por seguridad.
+                message.textContent = text;
+            }
 
             const time = document.createElement('div');
             time.className = 'message-time';
@@ -604,9 +729,12 @@
         function exportChat() {
             const messages = Array.from(chatbox.querySelectorAll('.message-group')).map(group => {
                 const sender = group.classList.contains('user') ? 'Usuario' : 'Sergio Márquez';
-                const text = group.querySelector('.message').textContent;
+                const text = group.querySelector('.message').innerHTML; // Usamos innerHTML para obtener el contenido formateado
                 const time = group.querySelector('.message-time')?.textContent || '';
-                return `[${time}] ${sender}: ${text}`;
+
+                // Limpieza básica para el export a texto plano
+                const plainText = text.replace(/<[^>]*>/g, '\n').replace(/\n\n+/g, '\n').trim();
+                return `[${time}] ${sender}:\n${plainText}`;
             }).join('\n\n');
 
             const blob = new Blob([messages], { type: 'text/plain;charset=utf-8' });
@@ -621,4 +749,5 @@
         }
     </script>
 </body>
+
 </html>
