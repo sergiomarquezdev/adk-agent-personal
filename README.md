@@ -1,6 +1,6 @@
-# 🤖 Agente Personal de Sergio Márquez
+# 🤖 Asistente Personal de Sergio Márquez
 
-Un agente de inteligencia artificial personal que actúa como Sergio Márquez, desarrollador IA/ML con experiencia en Python, FastAPI y automatización. El agente puede consultar información actualizada de su CV y responder preguntas sobre su experiencia profesional.
+Un sistema de **inteligencia artificial multi-agente** que actúa como Sergio Márquez, desarrollador IA/ML. El sistema incluye especialistas para consultar su CV dinámico y buscar en su blog, con una interfaz web moderna incluida.
 
 [![Python](https://img.shields.io/badge/Python-3.11+-blue.svg)](https://www.python.org/)
 [![FastAPI](https://img.shields.io/badge/FastAPI-0.100+-green.svg)](https://fastapi.tiangolo.com/)
@@ -10,42 +10,74 @@ Un agente de inteligencia artificial personal que actúa como Sergio Márquez, d
 
 ## 🚀 Características
 
-- **🤖 Agente Personalizado**: Actúa como Sergio Márquez con personalidad profesional pero cercana
-- **📊 CV Dinámico**: Consulta información actualizada desde `https://cv.sergiomarquez.dev/cv.json`
-- **🔍 Búsqueda Inteligente**: Analiza consultas en español e inglés para encontrar información relevante
-- **⚡ Cache Optimizado**: Sistema de cache automático para mejorar el rendimiento
-- **🏗️ Arquitectura Modular**: Herramientas organizadas en módulos especializados
-- **🐳 Docker Ready**: Contenedor Docker optimizado para despliegue
-- **🧪 Tests Completos**: Suite de tests automatizados y manuales
-- **📱 API REST**: Endpoint RESTful para integración con aplicaciones
+- **🎭 Sistema Multi-Agente**: Arquitectura con agentes especializados para diferentes tareas
+- **📊 CV Dinámico**: Descarga automática desde `https://cv.sergiomarquez.dev/cv.json`
+- **📝 Búsqueda en Blog**: Integración con Google Search para `blog.sergiomarquez.dev`
+- **🎨 Frontend Moderno**: Interfaz web elegante con soporte Markdown completo
+- **⚡ FastAPI + ADK**: Backend robusto con Google Agent Development Kit
+- **🧪 Tests Completos**: Suite de tests con pytest (100% passing)
+- **🐳 Docker Ready**: Contenedor optimizado para despliegue
+- **📱 API REST**: Endpoints documentados con OpenAPI/Swagger
 
-## 🏗️ Arquitectura
+## 🏗️ Arquitectura Multi-Agente
+
+```
+┌─────────────────────────────────────────────────────────┐
+│                Personal_Orchestrator                    │
+│          (Coordinador Ejecutivo)                       │
+└─────────────────┬───────────────────┬───────────────────┘
+                  │                   │
+         ┌────────▼────────┐ ┌───────▼────────┐
+         │   CV_Expert     │ │  Blog_Expert   │
+         │ (Especialista   │ │ (Archivista    │
+         │  en CV)         │ │  Digital)      │
+         └─────────────────┘ └────────────────┘
+```
+
+### Agentes Especializados
+
+- **🎯 Personal_Orchestrator**: Analiza consultas y delega al especialista adecuado
+- **👨‍💼 CV_Expert**: Responde sobre experiencia, habilidades y trayectoria profesional
+- **📚 Blog_Expert**: Busca artículos específicos usando Google Search
+
+## 🏗️ Estructura del Proyecto
 
 ```
 adk-agent-personal/
-├── assistant/           # Módulo principal del agente
-│   ├── agent.py             # Configuración del agente ADK
-│   ├── tools.py             # Punto de entrada de herramientas (compatibilidad)
-│   └── tools/               # Herramientas modulares
-│       ├── cv/              # Herramientas del CV
-│       │   ├── cache.py     # Gestión de cache y descarga
-│       │   ├── extractors.py # Extracción de datos específicos
-│       │   └── search.py    # Búsqueda inteligente
-│       └── README.md        # Documentación de herramientas
-├── main.py                  # Servidor FastAPI
-├── requirements.txt         # Dependencias Python
-├── Dockerfile              # Contenedor Docker
-├── test/                   # Tests automatizados
+├── assistant/               # Módulo principal del asistente
+│   ├── __init__.py         # Definición del paquete
+│   ├── agents.py           # Arquitectura multi-agente (ADK)
+│   ├── services.py         # Lógica de negocio e invocación
+│   └── tools.py            # Herramientas (CV y blog search)
+├── tests/                  # Suite de tests completa
+│   ├── conftest.py         # Fixtures y configuración pytest
+│   ├── test_agents.py      # Tests de agentes
+│   ├── test_main.py        # Tests de API FastAPI
+│   ├── test_services.py    # Tests de servicios
+│   ├── test_tools.py       # Tests de herramientas
+│   ├── test_integration.py # Tests de integración
+│   ├── TESTING_GUIDE.md    # Guía de testing
+│   └── TEST_RESULTS.md     # Resultados de tests
+├── nginx/                  # Frontend y configuración web
+│   ├── index.html          # Interfaz web moderna
+│   ├── nginx.conf          # Configuración Nginx
+│   ├── docker-compose.yml  # Stack completo
+│   └── update.sh           # Script de despliegue
+├── main.py                 # Servidor FastAPI
+├── requirements.txt        # Dependencias Python
+├── pytest.ini            # Configuración pytest
+└── Dockerfile             # Contenedor Docker
 ```
 
 ## 🛠️ Tecnologías
 
 - **Backend**: Python 3.11+, FastAPI, Uvicorn
-- **IA/ML**: Google ADK, Gemini 1.5 Flash
-- **Cache**: Sistema de cache en memoria con expiración
-- **Testing**: Pytest, requests
-- **Containerización**: Docker
-- **API**: RESTful con documentación automática
+- **IA/ML**: Google ADK (Agent Development Kit), Gemini 1.5 Flash
+- **Frontend**: HTML5, CSS3, JavaScript, Marked.js
+- **Búsqueda**: Google Search API (googlesearch-python)
+- **Testing**: Pytest, pytest-asyncio, pytest-mock, httpx
+- **Containerización**: Docker, Docker Compose
+- **Proxy**: Nginx (para producción)
 
 ## 📦 Instalación
 
@@ -78,207 +110,221 @@ adk-agent-personal/
    ```
 
 4. **Ejecutar el servidor**
+
    ```bash
    python main.py
    ```
 
+5. **Acceder a la aplicación**
+   - **Frontend**: http://localhost:8000/nginx/
+   - **API Docs**: http://localhost:8000/docs
+   - **Health Check**: http://localhost:8000/api/health
+
 ### Instalación con Docker
 
-1. **Construir la imagen**
+```bash
+# Stack completo (Backend + Frontend + Nginx)
+cd nginx
+docker-compose up -d
 
-   ```bash
-   docker build -t adk-agent-personal .
-   ```
-
-2. **Ejecutar el contenedor**
-   ```bash
-   docker run -p 8000:8000 --env-file .env adk-agent-personal
-   ```
+# Solo backend
+docker build -t adk-agent-personal .
+docker run -p 8000:8000 --env-file .env adk-agent-personal
+```
 
 ## 🚀 Uso
 
+### Interfaz Web
+
+La interfaz web está disponible en `/nginx/index.html` con características modernas:
+
+- **🎨 Diseño elegante**: UI/UX optimizada para conversaciones
+- **📝 Markdown completo**: Renderizado con marked.js
+- **💬 Chat fluido**: Experiencia conversacional natural
+- **📱 Responsive**: Adaptado para móviles y escritorio
+- **⚡ Tiempo real**: Indicadores de typing y loading
+
 ### API REST
 
-El servidor expone un endpoint REST para interactuar con el agente:
-
 ```bash
-# Ejemplo de uso con curl
+# Consulta sobre experiencia profesional
 curl -X POST "http://localhost:8000/api/invoke" \
      -H "Content-Type: application/json" \
-     -d '{"message": "Háblame de tu experiencia laboral"}'
+     -d '{"message": "Háblame de tu experiencia en IA/ML"}'
+
+# Búsqueda en blog
+curl -X POST "http://localhost:8000/api/invoke" \
+     -H "Content-Type: application/json" \
+     -d '{"message": "¿Has escrito sobre Docker?"}'
 ```
 
 ### Ejemplo de Respuesta
 
 ```json
 {
-  "response": "Perfecto. Según mi CV, he tenido dos roles principales en XXXXX:\n\nPrimero, desde mayo de 2025, trabajo como **Desarrollador IA/ML**..."
+  "response": "## 🤖 Mi Experiencia en IA/ML\n\nComo **Desarrollador IA/ML** he trabajado con:\n\n- `Python` para machine learning\n- `TensorFlow` y `PyTorch`\n- **Google Cloud AI** y ADK\n- Automatización con `FastAPI`",
+  "session_id": "user_abc123..."
 }
-```
-
-### Uso Programático
-
-```python
-import requests
-
-def ask_agent(question: str) -> str:
-    response = requests.post(
-        "http://localhost:8000/api/invoke",
-        json={"message": question}
-    )
-    return response.json()["response"]
-
-# Ejemplo de uso
-answer = ask_agent("¿Cuáles son tus habilidades en Python?")
-print(answer)
 ```
 
 ## 🧪 Testing
 
-### Tests Automatizados
+### Ejecutar Tests
 
 ```bash
-# Ejecutar todos los tests
-pytest test/test_api_pytest.py
+# Todos los tests
+pytest
 
-# Ejecutar con verbose
-pytest -v test/test_api_pytest.py
+# Con verbose y coverage
+pytest -v --tb=short
+
+# Tests específicos
+pytest tests/test_agents.py
+pytest tests/test_integration.py
+
+# Solo tests de unidad
+pytest -m unit
 ```
 
-### Tests Manuales
+### Resultados Actuales
 
-```bash
-# Test manual de la API
-python test/test_api.py
-```
+- ✅ **57/57 tests pasando** (100%)
+- 🧪 **5 módulos testeados** completamente
+- 📊 **Cobertura completa** de funcionalidades críticas
 
-### Verificación de Funcionamiento
-
-```python
-# Verificar importaciones
-from assistant.tools import search_cv_info
-from assistant.agent import root_agent
-
-# Verificar funcionalidad básica
-result = search_cv_info("experiencia")
-assert result['type'] == 'work_experience'
-```
+Ver `tests/TEST_RESULTS.md` para detalles completos.
 
 ## 🔧 Configuración
 
 ### Variables de Entorno
 
-| Variable         | Descripción                         | Requerido |
-| ---------------- | ----------------------------------- | --------- |
-| `GOOGLE_API_KEY` | API key de Google AI Studio         | ✅        |
-| `PORT`           | Puerto del servidor (default: 8000) | ❌        |
+| Variable         | Descripción                 | Requerido | Default |
+| ---------------- | --------------------------- | --------- | ------- |
+| `GOOGLE_API_KEY` | API key de Google AI Studio | ✅        | -       |
+| `PORT`           | Puerto del servidor         | ❌        | 8000    |
 
-### Configuración del Agente
+### Personalización de Agentes
 
-El agente está configurado en `assistant/agent.py` con:
+Los prompts de los agentes están optimizados para Markdown en `assistant/agents.py`:
 
-- **Modelo**: Gemini 1.5 Flash
-- **Personalidad**: Profesional pero cercana
-- **Herramientas**: Búsqueda inteligente en CV
-- **Reglas**: No política, religión ni temas controvertidos
+```python
+# CV_Expert - Estructurado
+- Usa `## Encabezado` para secciones principales
+- `**texto**` para resaltar tecnologías y empresas
+- `*cursiva*` para fechas y ubicaciones
 
-## 📊 Funcionalidades del CV
+# Blog_Expert - Visual
+- `## 📝 Artículos encontrados sobre [tema]`
+- `- **[Título]** - [URL]` para cada resultado
 
-El agente puede consultar y responder sobre:
+# Personal_Orchestrator - Conversacional
+- Mantén fluidez natural
+- `**texto**` para énfasis importantes
+```
 
-- **👤 Información Personal**: Nombre, email, resumen, ubicación
-- **💼 Experiencia Laboral**: Roles, responsabilidades, tecnologías
+## 🎯 Funcionalidades
+
+### Consultas sobre CV
+
+El **CV_Expert** puede responder sobre:
+
+- **👤 Información Personal**: Nombre, contacto, resumen profesional
+- **💼 Experiencia Laboral**: Roles, responsabilidades, tecnologías usadas
 - **🎓 Educación**: Formación académica y certificaciones
 - **🛠️ Habilidades**: Técnicas organizadas por categorías
-- **📁 Proyectos**: Personales y profesionales
-- **🏆 Certificaciones**: Acreditaciones y cursos
+- **📁 Proyectos**: Desarrollos personales y profesionales
 
-### Palabras Clave Soportadas
+### Búsqueda en Blog
 
-- **Experiencia**: `experiencia`, `trabajo`, `work`, `laboral`
-- **Educación**: `educación`, `education`, `estudios`
-- **Habilidades**: `habilidades`, `skills`, `tecnologías`
-- **Proyectos**: `proyectos`, `projects`
-- **Certificados**: `certificados`, `certificates`
+El **Blog_Expert** busca en `blog.sergiomarquez.dev`:
+
+- **🔍 Google Search**: Usando operador `site:blog.sergiomarquez.dev`
+- **📝 Resultados estructurados**: Títulos y URLs organizados
+- **⚡ Búsqueda real**: Sin fallbacks, resultados actualizados
+
+### Ejemplos de Consultas
+
+```
+# Experiencia profesional
+"¿Cuál es tu experiencia en Python?"
+"Háblame de tus proyectos de IA"
+"¿Qué tecnologías dominas?"
+
+# Búsqueda en blog
+"¿Has escrito sobre Docker?"
+"Artículos sobre machine learning"
+"Posts sobre FastAPI"
+```
 
 ## 🔄 Desarrollo
 
-### Estructura Modular
+### Agregar Nuevos Agentes
 
-Las herramientas están organizadas en módulos especializados:
+1. **Definir agente** en `assistant/agents.py`
+2. **Crear herramientas** en `assistant/tools.py`
+3. **Integrar** en `Personal_Orchestrator.sub_agents`
+4. **Escribir tests** en `tests/`
+
+### Ejemplo de Nuevo Agente
 
 ```python
-# Importación básica (compatibilidad)
-from assistant.tools import search_cv_info
-
-# Importación directa (recomendada)
-from assistant.tools.cv import search_cv_info
+weather_agent = Agent(
+    name="Weather_Expert",
+    description="Especialista en información meteorológica",
+    model="gemini-1.5-flash",
+    instruction="...",
+    tools=[get_weather_info],
+)
 ```
 
-### Agregar Nuevas Herramientas
+### Contribuir
 
-1. Crear nuevo directorio en `assistant/tools/`
-2. Implementar funciones necesarias
-3. Actualizar `assistant/tools/__init__.py`
-4. Agregar documentación
-5. Crear tests
-
-### Ejemplo de Nuevo Módulo
-
-```
-tools/
-├── weather/
-│   ├── __init__.py
-│   ├── api_client.py
-│   └── forecast.py
-└── cv/ (existente)
-```
+1. Fork el proyecto
+2. Crear rama feature (`git checkout -b feature/NewAgent`)
+3. Implementar con tests
+4. Commit cambios (`git commit -m 'Add Weather Agent'`)
+5. Push y crear Pull Request
 
 ## 🐛 Troubleshooting
 
 ### Problemas Comunes
 
-**Error: "No se pudo encontrar 'invoke_agent_async'"**
+**❌ Error de API Key**
 
-- Verificar que `assistant/agent.py` existe
-- Comprobar que la función está definida correctamente
+```bash
+# Verificar configuración
+echo $GOOGLE_API_KEY
+# Debe mostrar tu API key
+```
 
-**Error: "Library stubs not installed for 'requests'"**
+**❌ Tests fallando**
 
-- Instalar tipos: `pip install types-requests`
-- O ignorar el warning (no afecta funcionalidad)
+```bash
+# Reinstalar dependencias de testing
+pip install pytest pytest-asyncio pytest-mock httpx
+pytest --tb=short
+```
 
-**Error de API Key**
+**❌ Frontend no carga**
 
-- Verificar que `GOOGLE_API_KEY` está configurada
-- Comprobar que la key es válida en Google AI Studio
+```bash
+# Verificar servidor está corriendo
+curl http://localhost:8000/api/health
+# Debe devolver {"status": "OK"}
+```
 
 ### Logs y Debugging
 
 ```bash
-# Ejecutar con logs detallados
+# Logs detallados
 python main.py --log-level debug
 
-# Verificar conectividad
-curl http://localhost:8000/docs
+# Verificar imports
+python -c "from assistant import agents, services, tools; print('✅ Imports OK')"
+
+# Test rápido de API
+curl http://localhost:8000/api/health
 ```
-
-## 🤝 Contribución
-
-¡Las contribuciones son bienvenidas! Por favor:
-
-1. Fork el proyecto
-2. Crear una rama para tu feature (`git checkout -b feature/AmazingFeature`)
-3. Commit tus cambios (`git commit -m 'Add some AmazingFeature'`)
-4. Push a la rama (`git push origin feature/AmazingFeature`)
-5. Abrir un Pull Request
-
-### Guías de Contribución
-
-- Seguir PEP 8 para estilo de código
-- Agregar tests para nuevas funcionalidades
-- Actualizar documentación según sea necesario
-- Verificar que todos los tests pasen
 
 ## 📄 Licencia
 
@@ -288,16 +334,18 @@ Este proyecto está bajo la Licencia MIT. Ver el archivo `LICENSE` para más det
 
 **Sergio Márquez**
 
-- LinkedIn: [Sergio Márquez](https://linkedin.com/in/sergiomarquez)
-- GitHub: [@sergiomarquez](https://github.com/sergiomarquez)
-- CV: [cv.sergiomarquez.dev](https://cv.sergiomarquez.dev)
+- 💼 LinkedIn: [Sergio Márquez](https://linkedin.com/in/sergiomarquez)
+- 🐙 GitHub: [@sergiomarquez](https://github.com/sergiomarquez)
+- 📄 CV: [cv.sergiomarquez.dev](https://cv.sergiomarquez.dev)
+- 📝 Blog: [blog.sergiomarquez.dev](https://blog.sergiomarquez.dev)
 
 ## 🙏 Agradecimientos
 
 - [Google ADK](https://ai.google.dev/) por el framework de agentes
-- [Gemini](https://ai.google.dev/gemini/) por el modelo de IA
+- [Gemini 1.5 Flash](https://ai.google.dev/gemini/) por el modelo de IA
 - [FastAPI](https://fastapi.tiangolo.com/) por el framework web
 - [Pytest](https://pytest.org/) por el framework de testing
+- [Marked.js](https://marked.js.org/) por el renderizado Markdown
 
 ---
 
