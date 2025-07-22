@@ -23,6 +23,40 @@
         }
 
         /* Estilos para el contenido renderizado por Markdown */
+        .message-content .message h1,
+        .message-content .message h2,
+        .message-content .message h3,
+        .message-content .message h4,
+        .message-content .message h5,
+        .message-content .message h6 {
+            margin-top: 16px;
+            margin-bottom: 8px;
+            font-weight: 600;
+            line-height: 1.25;
+        }
+
+        .message-content .message h1 {
+            font-size: 1.5em;
+            border-bottom: 1px solid #e5e7eb;
+            padding-bottom: 8px;
+        }
+
+        .message-content .message h2 {
+            font-size: 1.25em;
+            color: #14b8a6;
+        }
+
+        .message-content .message h3 {
+            font-size: 1.1em;
+            color: #059669;
+        }
+
+        .message-content .message h1:first-child,
+        .message-content .message h2:first-child,
+        .message-content .message h3:first-child {
+            margin-top: 0;
+        }
+
         .message-content .message ul,
         .message-content .message ol {
             padding-left: 20px;
@@ -47,6 +81,8 @@
             padding: 2px 4px;
             border-radius: 4px;
             font-family: 'Courier New', Courier, monospace;
+            font-size: 0.9em;
+            color: #dc2626;
         }
 
         .message-content .message pre {
@@ -57,6 +93,12 @@
             margin: 8px 0;
         }
 
+        .message-content .message pre code {
+            background-color: transparent;
+            padding: 0;
+            color: inherit;
+        }
+
         .message-content .message a {
             color: #0ea5e9;
             text-decoration: none;
@@ -64,6 +106,24 @@
 
         .message-content .message a:hover {
             text-decoration: underline;
+        }
+
+        .message-content .message blockquote {
+            border-left: 4px solid #14b8a6;
+            margin: 8px 0;
+            padding: 8px 16px;
+            background-color: #f0fdfa;
+            font-style: italic;
+        }
+
+        .message-content .message strong {
+            font-weight: 600;
+            color: #111827;
+        }
+
+        .message-content .message em {
+            font-style: italic;
+            color: #6b7280;
         }
 
 
@@ -585,6 +645,9 @@
             userInput.value = '';
             userInput.style.height = 'auto';
 
+            // Asegurar scroll después de enviar mensaje
+            scrollToBottom();
+
             const loadingId = showLoadingIndicator();
             setLoadingState(true);
 
@@ -611,6 +674,9 @@
                 const data = await response.json();
                 appendMessage(data.response, 'agent');
                 currentSessionId = data.session_id;
+
+                // Asegurar scroll después de recibir respuesta
+                scrollToBottom();
 
             } catch (error) {
                 removeElement(loadingId);
@@ -643,10 +709,20 @@
             const message = document.createElement('div');
             message.className = `message ${isError ? 'error' : ''}`;
 
-            // 2. Aquí está la magia: usamos marked.parse() para convertir Markdown a HTML
-            // La librería marked se encarga de sanitizar el resultado para prevenir XSS.
+            // 2. Renderizado de contenido: Markdown para agente, texto plano para usuario
             if (sender === 'agent') {
-                message.innerHTML = marked.parse(text);
+                try {
+                    // Verificar que marked esté disponible y parsear el Markdown
+                    if (typeof marked !== 'undefined' && marked.parse) {
+                        message.innerHTML = marked.parse(text);
+                    } else {
+                        console.warn('Marked.js no está disponible, usando texto plano');
+                        message.textContent = text;
+                    }
+                } catch (error) {
+                    console.error('Error al parsear Markdown:', error);
+                    message.textContent = text;
+                }
             } else {
                 // Para los mensajes del usuario, seguimos usando textContent por seguridad.
                 message.textContent = text;
@@ -703,7 +779,10 @@
         }
 
         function scrollToBottom() {
-            chatbox.scrollTop = chatbox.scrollHeight;
+            // Usar setTimeout para asegurar que el DOM se haya actualizado
+            setTimeout(() => {
+                chatbox.scrollTop = chatbox.scrollHeight;
+            }, 10);
         }
 
         function sendSuggestion(text) {
