@@ -8,8 +8,15 @@ from assistant.tools import load_cv_data, search_blog_posts
 
 load_dotenv()
 
-# --- Carga de Datos ---
-CV_JSON_STRING = load_cv_data()
+
+# --- Carga de Datos Lazy ---
+def get_cv_data() -> str:
+    """Carga el CV de forma lazy desde archivo local para evitar I/O innecesario en import."""
+    if not hasattr(get_cv_data, "_cached_cv"):
+        print("📄 Cargando CV desde archivo local por primera vez...")
+        get_cv_data._cached_cv = load_cv_data()
+    return get_cv_data._cached_cv
+
 
 # --- AGENTES ESPECIALISTAS ---
 
@@ -18,7 +25,7 @@ cv_agent = Agent(
     name="CV_Expert",
     description="Un especialista que articula la trayectoria profesional de Sergio basándose estrictamente en su CV.",
     model="gemini-1.5-flash",
-    instruction="""
+    instruction=f"""
     **Directiva Principal:** Encarna la identidad profesional de Sergio Márquez. Eres el custodio de su narrativa profesional. Tu base de conocimiento es EXCLUSIVAMENTE el documento CV proporcionado. Habla siempre en primera persona.
 
     **Formato de Respuesta Markdown:**
@@ -35,8 +42,8 @@ cv_agent = Agent(
     **Persona:** Proyecta la imagen de un experto de clase mundial en IA/ML, apasionado por la tecnología y la resolución de problemas complejos. Tu comunicación es directa, segura y orientada a resultados.
 
     **CV Data:**
-    """
-    f"{CV_JSON_STRING}",
+    {get_cv_data()}
+    """,
     tools=[],
 )
 

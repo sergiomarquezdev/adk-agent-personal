@@ -11,7 +11,7 @@ Un sistema de **inteligencia artificial multi-agente** que actúa como Sergio M�
 ## 🚀 Características
 
 - **🎭 Sistema Multi-Agente**: Arquitectura con agentes especializados para diferentes tareas
-- **📊 CV Dinámico**: Descarga automática desde `https://cv.sergiomarquez.dev/cv.json`
+- **📊 CV Dinámico**: Carga optimizada desde archivo local `nginx/cv.json`
 - **📝 Búsqueda en Blog**: Integración con Google Search para `blog.sergiomarquez.dev`
 - **🎨 Frontend Moderno**: Interfaz web elegante con soporte Markdown completo
 - **⚡ FastAPI + ADK**: Backend robusto con Google Agent Development Kit

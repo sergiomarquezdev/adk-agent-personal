@@ -4,7 +4,6 @@
 import json
 import os
 
-import requests
 from googlesearch import search
 
 
@@ -52,43 +51,30 @@ def search_blog_posts(query: str) -> str:
 
 
 def load_cv_data() -> str:
-    """Descarga y devuelve el contenido del CV desde la página web de Sergio."""
-    cv_url = "https://cv.sergiomarquez.dev/cv.json"
+    """Carga y devuelve el contenido del CV desde el archivo local."""
+    cv_path = os.path.join(os.path.dirname(__file__), "..", "nginx", "cv.json")
 
     try:
-        print(f"Descargando CV desde: {cv_url}")
-        response = requests.get(cv_url, timeout=10)
-        response.raise_for_status()  # Lanza excepción si hay error HTTP
+        print(f"📄 Cargando CV desde archivo local: {cv_path}")
+        with open(cv_path, "r", encoding="utf-8") as f:
+            cv_data = json.load(f)
+            return json.dumps(cv_data, indent=2, ensure_ascii=False)
 
-        # Verificar que la respuesta sea JSON válido
-        cv_data = response.json()
-        return json.dumps(cv_data, indent=2, ensure_ascii=False)
-
-    except requests.exceptions.RequestException as e:
-        print(f"Error al descargar el CV desde {cv_url}: {e}")
-        # Fallback: intentar cargar desde archivo local si existe
-        fallback_path = os.path.join(
-            os.path.dirname(__file__), "..", "nginx", "cv.json"
+    except FileNotFoundError:
+        print(f"❌ Error: No se encontró el archivo CV en {cv_path}")
+        # CV básico de emergencia
+        return json.dumps(
+            {
+                "name": "Sergio Márquez",
+                "title": "Desarrollador IA/ML",
+                "note": "CV no disponible. Archivo no encontrado.",
+            },
+            indent=2,
+            ensure_ascii=False,
         )
-        try:
-            with open(fallback_path, "r", encoding="utf-8") as f:
-                print("Usando CV local como fallback")
-                return json.dumps(json.load(f), indent=2, ensure_ascii=False)
-        except FileNotFoundError:
-            print("No se encontró archivo CV local. Usando CV básico como fallback.")
-            # CV básico de emergencia
-            return json.dumps(
-                {
-                    "name": "Sergio Márquez",
-                    "title": "Desarrollador Full Stack",
-                    "note": "CV no disponible temporalmente. Intenta de nuevo más tarde.",
-                },
-                indent=2,
-                ensure_ascii=False,
-            )
 
     except json.JSONDecodeError as e:
-        print(f"Error al parsear JSON del CV: {e}")
+        print(f"❌ Error al parsear JSON del CV: {e}")
         return json.dumps(
             {"name": "Sergio Márquez", "error": "Error en formato del CV"},
             indent=2,

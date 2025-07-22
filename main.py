@@ -1,6 +1,7 @@
 # main.py
 # Define la API web con FastAPI y gestiona las peticiones/respuestas HTTP.
 
+import os
 import uuid
 from typing import Optional
 
@@ -82,4 +83,12 @@ app = FastAPI(
 app.include_router(api_router)
 
 if __name__ == "__main__":
-    uvicorn.run("main:app", host="0.0.0.0", port=8000, reload=True)
+    # Control de modo desarrollo vs producción
+    is_development = os.getenv("DEVELOPMENT", "false").lower() == "true"
+
+    uvicorn.run(
+        "main:app",
+        host="0.0.0.0",
+        port=8000,
+        reload=is_development,  # Solo reload en desarrollo
+    )

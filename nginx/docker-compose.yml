@@ -24,5 +24,6 @@ services:
 
     # Variables de entorno. Aquí cargamos las variables
     # desde un fichero .env para no escribir secretos aquí directamente.
+    # Para desarrollo, agregar DEVELOPMENT=true al .env
     env_file:
       - .env

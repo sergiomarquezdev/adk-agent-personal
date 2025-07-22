@@ -35,12 +35,6 @@ def mock_search_results():
 
 
 @pytest.fixture
-def mock_requests_get(mocker):
-    """Mock para requests.get."""
-    return mocker.patch("requests.get")
-
-
-@pytest.fixture
 def mock_googlesearch(mocker):
     """Mock para googlesearch.search - usando el path correcto."""
     return mocker.patch("assistant.tools.search")
