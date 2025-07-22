@@ -1,4 +1,4 @@
-FROM python:3.11 as builder
+FROM python:3.11 AS builder
 
 WORKDIR /app
 
@@ -16,7 +16,8 @@ COPY requirements.txt .
 
 RUN pip install --no-cache-dir --no-index --find-links=/wheels -r requirements.txt
 
-RUN curl -o ./nginx/cv.json https://cv.sergiomarquez.dev/cv.json
+RUN mkdir -p nginx
+ADD https://cv.sergiomarquez.dev/cv.json nginx/cv.json
 
 COPY . .
 
