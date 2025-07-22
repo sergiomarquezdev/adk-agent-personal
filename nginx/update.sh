@@ -9,10 +9,7 @@ SCRIPT_DIR="/home/ubuntu/sergio-personal-agent"
 LOG_FILE="$SCRIPT_DIR/update.log"
 IMAGE_NAME="smarquezp/sergio-personal-agent:latest"
 SERVICE_NAME="personal-agent"
-NGINX_CONFIG_SRC="$SCRIPT_DIR/nginx.conf"
-NGINX_CONFIG_DEST="/etc/nginx/sites-available/chat.sergiomarquez.dev"
-FRONTEND_SRC_DIR="$SCRIPT_DIR"
-FRONTEND_DEST_DIR="/var/www/chat.sergiomarquez.dev"
+NGINX_SUBDIR="nginx"
 
 # Función para logging
 log() {
@@ -25,31 +22,18 @@ export PATH="/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin"
 
 log "🚀 Iniciando despliegue completo..."
 
-# 1. Actualizar configuración de Nginx
-log "1️⃣  Actualizando configuración de Nginx..."
-if [ -f "$NGINX_CONFIG_SRC" ]; then
-    sudo mv "$NGINX_CONFIG_SRC" "$NGINX_CONFIG_DEST"
-    log "✅ Configuración de Nginx movida a $NGINX_CONFIG_DEST"
-else
-    log "⚠️  No se encontró nginx.conf en $SCRIPT_DIR. Saltando actualización de Nginx."
-fi
+# 1. Mover archivos desde el subdirectorio de nginx
+log "1️⃣  Moviendo archivos de configuración y frontend..."
+sudo mv "$NGINX_SUBDIR/index.html" /var/www/chat.sergiomarquez.dev/
+sudo mv "$NGINX_SUBDIR/enhanced_rendering.js" /var/www/chat.sergiomarquez.dev/
+sudo mv "$NGINX_SUBDIR/docker-compose.yml" ./docker-compose.yml
+sudo mv "$NGINX_SUBDIR/nginx.conf" /etc/nginx/sites-available/chat.sergiomarquez.dev
+log "✅ Archivos movidos a sus destinos finales."
 
-# 2. Actualizar archivos del frontend
-log "2️⃣  Actualizando archivos del frontend..."
-if [ -f "$FRONTEND_SRC_DIR/index.html" ]; then
-    sudo mv "$FRONTEND_SRC_DIR/index.html" "$FRONTEND_DEST_DIR/index.html"
-    log "✅ Archivo index.html copiado a $FRONTEND_DEST_DIR"
-else
-    log "⚠️  No se encontró index.html en $FRONTEND_SRC_DIR."
-fi
-
-if [ -f "$FRONTEND_SRC_DIR/enhanced_rendering.js" ]; then
-    sudo mv "$FRONTEND_SRC_DIR/enhanced_rendering.js" "$FRONTEND_DEST_DIR/enhanced_rendering.js"
-    log "✅ Archivo enhanced_rendering.js copiado a $FRONTEND_DEST_DIR"
-else
-    log "⚠️  No se encontró enhanced_rendering.js en $FRONTEND_SRC_DIR."
-fi
-log "✅ Archivos de frontend actualizados en $FRONTEND_DEST_DIR"
+# 2. Limpiar el subdirectorio de nginx
+log "2️⃣  Limpiando directorio temporal..."
+sudo rm -r "$NGINX_SUBDIR"
+log "✅ Directorio temporal de nginx eliminado."
 
 # 3. Reiniciar Nginx para aplicar los cambios
 log "3️⃣  Reiniciando Nginx..."
