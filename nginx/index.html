@@ -6,7 +6,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Sergio Márquez - AI Assistant</title>
     <link rel="icon" type="image/png" href="./favicon.png">
-    <script src="https://cdn.jsdelivr.net/npm/marked@4.3.0/marked.min.js"></script>
+    <!-- HTML directo desde backend - no necesitamos marked.js -->
     <style>
         * {
             margin: 0;
@@ -636,14 +636,8 @@
     </footer>
 
     <script>
-        // --- Verificación de dependencias ---
-        console.log('🔧 Verificando dependencias...');
-        if (typeof marked !== 'undefined') {
-            console.log('✅ Marked.js cargado correctamente');
-            console.log('📚 API disponible:', typeof marked === 'function' ? 'marked()' : (typeof marked.parse === 'function' ? 'marked.parse()' : 'unknown'));
-        } else {
-            console.error('❌ Error: Marked.js no se pudo cargar desde CDN');
-        }
+        // --- Inicialización ---
+        console.log('🚀 Asistente IA iniciado - usando HTML directo desde backend');
 
         const chatbox = document.getElementById('chatbox');
         const userInput = document.getElementById('userInput');
@@ -798,29 +792,14 @@
             const message = document.createElement('div');
             message.className = `message ${isError ? 'error' : ''}`;
 
-            // 2. Renderizado de contenido: Markdown para agente, texto plano para usuario
+                        // 2. Renderizado de contenido: HTML directo desde backend para agente, texto plano para usuario
             if (sender === 'agent') {
-                try {
-                                        // Verificar que marked esté disponible y parsear el Markdown
-                    if (typeof marked !== 'undefined') {
-                        console.log('🔧 Debug: Procesando Markdown:', text.substring(0, 100) + '...');
+                console.log('📝 Renderizando HTML del agente:', text.substring(0, 100) + '...');
 
-                        // Usar la API estándar de marked.js v4.3.0
-                        const htmlContent = marked(text);
+                // El backend ya envía HTML válido y seguro - usar directamente
+                message.innerHTML = text;
 
-                        console.log('✅ Debug: Markdown procesado exitosamente');
-                        console.log('📝 HTML generado:', htmlContent.substring(0, 200) + '...');
-
-                        message.innerHTML = htmlContent;
-                    } else {
-                        console.warn('⚠️ Marked.js no está disponible, usando texto plano');
-                        message.textContent = text;
-                    }
-                } catch (error) {
-                    console.error('❌ Error al parsear Markdown:', error);
-                    console.log('📝 Contenido original:', text);
-                    message.textContent = text;
-                }
+                console.log('✅ HTML renderizado exitosamente');
             } else {
                 // Para los mensajes del usuario, seguimos usando textContent por seguridad.
                 message.textContent = text;
@@ -838,11 +817,10 @@
                 welcomeCard.remove();
             }
 
-            chatbox.appendChild(messageGroup);
+                        chatbox.appendChild(messageGroup);
 
-            // Usar delay más largo para mensajes del agente con Markdown
-            const scrollDelay = (sender === 'agent') ? 50 : 10;
-            scrollToBottom(scrollDelay);
+            // Scroll automático para mantener el chat visible
+            scrollToBottom();
         }
 
         // --- UI Helper Functions ---
@@ -879,12 +857,11 @@
             if (!loading) userInput.focus();
         }
 
-        function scrollToBottom(delay = 10) {
+        function scrollToBottom() {
             // Usar setTimeout para asegurar que el DOM se haya actualizado
             setTimeout(() => {
                 chatbox.scrollTop = chatbox.scrollHeight;
-                console.log('📜 Scroll ejecutado - posición:', chatbox.scrollTop, 'altura:', chatbox.scrollHeight);
-            }, delay);
+            }, 10);
         }
 
         function sendSuggestion(text) {

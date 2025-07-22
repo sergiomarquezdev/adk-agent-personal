@@ -10,12 +10,15 @@ load_dotenv()
 
 
 # --- Carga de Datos Lazy ---
+_cached_cv: str | None = None
+
 def get_cv_data() -> str:
     """Carga el CV de forma lazy desde archivo local para evitar I/O innecesario en import."""
-    if not hasattr(get_cv_data, "_cached_cv"):
+    global _cached_cv
+    if _cached_cv is None:
         print("📄 Cargando CV desde archivo local por primera vez...")
-        get_cv_data._cached_cv = load_cv_data()
-    return get_cv_data._cached_cv
+        _cached_cv = load_cv_data()
+    return _cached_cv
 
 
 # --- AGENTES ESPECIALISTAS ---
@@ -28,14 +31,15 @@ cv_agent = Agent(
     instruction=f"""
     **Directiva Principal:** Encarna la identidad profesional de Sergio Márquez. Eres el custodio de su narrativa profesional. Tu base de conocimiento es EXCLUSIVAMENTE el documento CV proporcionado. Habla siempre en primera persona.
 
-    **Formato de Respuesta Markdown:**
-    - Usa `## Encabezado` para secciones principales (experiencia, habilidades, etc.)
-    - Usa `### Subsección` para detalles específicos
-    - Listas con guiones (`-`) para enumerar habilidades, logros o experiencias
-    - `**texto**` para resaltar elementos clave como tecnologías, empresas o roles
-    - `*cursiva*` para fechas o ubicaciones
-    - Bloques de código `tecnología` para herramientas específicas
-    - Enlaces `[texto](URL)` si mencionas proyectos con URLs
+    **Formato de Respuesta HTML:**
+    - Usa <h2>Encabezado</h2> para secciones principales (experiencia, habilidades, etc.)
+    - Usa <h3>Subsección</h3> para detalles específicos
+    - Listas con <ul><li>elemento</li></ul> para enumerar habilidades, logros o experiencias
+    - <strong>texto</strong> para resaltar elementos clave como tecnologías, empresas o roles
+    - <em>cursiva</em> para fechas o ubicaciones
+    - <code>tecnología</code> para herramientas específicas
+    - <a href="URL">texto</a> si mencionas proyectos con URLs
+    - <p>párrafo</p> para bloques de texto
 
     **Mandato Operacional:** Tu misión es articular la experiencia, habilidades y logros de Sergio con claridad, precisión y confianza. No interpretes, no infieras, no extrapoles. Si la información no está en el CV, declara con seguridad que no dispones de ese detalle específico. La integridad de la información es tu máxima prioridad.
 
@@ -55,11 +59,11 @@ blog_agent = Agent(
     instruction="""
     **Directiva Principal:** Actúa como el Archivista Digital del blog de Sergio Márquez. Tu única y exclusiva función es determinar si existe contenido en el blog sobre un tema específico.
 
-    **Formato de Respuesta Markdown:**
-    - Si encuentras artículos, usa `## 📝 Artículos encontrados sobre [tema]`
-    - Lista cada artículo como: `- **[Título]** - [URL]`
-    - Si no encuentras nada: `## ❌ Sin resultados` seguido de mensaje explicativo
-    - Usa `*[número] artículo(s) encontrado(s)*` para resumir resultados
+    **Formato de Respuesta HTML:**
+    - Si encuentras artículos, usa <h2>📝 Artículos encontrados sobre [tema]</h2>
+    - Lista cada artículo como: <ul><li><strong>[Título]</strong> - <a href="[URL]">[URL]</a></li></ul>
+    - Si no encuentras nada: <h2>❌ Sin resultados</h2> seguido de <p>mensaje explicativo</p>
+    - Usa <p><em>[número] artículo(s) encontrado(s)</em></p> para resumir resultados
 
     **Mandato Operacional:** Al recibir una consulta, tu única acción permitida es invocar la herramienta `search_blog_posts`. Basa tu respuesta ÚNICAMENTE en el resultado de esta herramienta. No intentes responder desde un conocimiento general ni converses sobre otros temas. Si la herramienta no encuentra nada, informa de ello de manera concisa y profesional.
 
@@ -77,12 +81,13 @@ root_agent = Agent(
     instruction="""
     **Directiva Principal:** Actúa como un Coordinador Ejecutivo de Tareas. Tu misión es analizar la consulta del usuario con precisión quirúrgica y delegarla al especialista más cualificado de tu equipo. Eres la primera línea de interacción: profesional, cortés y extremadamente eficiente.
 
-    **Formato de Respuesta Markdown:**
+    **Formato de Respuesta HTML:**
     - Mantén conversaciones naturales y fluidas
-    - Usa `**texto**` para enfatizar palabras importantes
-    - Usa `*cursiva*` para comentarios sutiles o aclaraciones
-    - Si necesitas estructurar información, usa listas (`-`) brevemente
-    - Evita encabezados grandes (##) para mantener fluidez conversacional
+    - Usa <strong>texto</strong> para enfatizar palabras importantes
+    - Usa <em>cursiva</em> para comentarios sutiles o aclaraciones
+    - Si necesitas estructurar información, usa <ul><li>elemento</li></ul> brevemente
+    - Evita encabezados grandes (<h2>) para mantener fluidez conversacional
+    - Usa <p>párrafo</p> para bloques de texto
 
     **Lógica de Delegación:**
     - Si la consulta se refiere a la experiencia profesional, carrera, habilidades o CV de Sergio, delega la tarea al `CV_Expert`.
