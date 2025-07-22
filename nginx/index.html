@@ -636,6 +636,50 @@
         });
         userInput.focus();
 
+        // --- Error Handling ---
+        function getFriendlyErrorMessage(error) {
+            const errorMessage = error.message?.toLowerCase() || '';
+            const errorName = error.name?.toLowerCase() || '';
+
+            // Errores de red/conectividad
+            if (errorMessage.includes('fetch') || errorMessage.includes('network') ||
+                errorMessage.includes('failed to fetch') || errorName.includes('networkerror')) {
+                return '❌ No se pudo conectar con el servidor. Por favor, verifica tu conexión a internet e intenta de nuevo.';
+            }
+
+            // Errores de parsing JSON (como el que está viendo el usuario)
+            if (errorMessage.includes('unexpected token') || errorMessage.includes('json') ||
+                errorMessage.includes('doctype') || errorMessage.includes('<!doctype')) {
+                return '⚠️ El servidor está experimentando problemas técnicos. Por favor, intenta de nuevo en unos momentos.';
+            }
+
+            // Errores de timeout
+            if (errorMessage.includes('timeout') || errorMessage.includes('aborted')) {
+                return '⏱️ La respuesta está tardando más de lo esperado. Por favor, intenta de nuevo.';
+            }
+
+            // Errores HTTP específicos
+            if (errorMessage.includes('500')) {
+                return '🔧 El servidor está experimentando problemas internos. Estamos trabajando para solucionarlo.';
+            }
+
+            if (errorMessage.includes('404')) {
+                return '🔍 Servicio no encontrado. Por favor, verifica que estés usando la URL correcta.';
+            }
+
+            if (errorMessage.includes('403') || errorMessage.includes('unauthorized')) {
+                return '🔒 No tienes permisos para acceder a este servicio. Por favor, recarga la página e intenta de nuevo.';
+            }
+
+            // Errores del agente/backend
+            if (errorMessage.includes('agente') || errorMessage.includes('agent')) {
+                return '🤖 El asistente está experimentando dificultades técnicas. Por favor, intenta de nuevo en unos momentos.';
+            }
+
+            // Error genérico amigable para cualquier otro caso
+            return '❌ Algo salió mal. Por favor, intenta de nuevo o recarga la página si el problema persiste.';
+        }
+
         // --- Core Functions ---
         async function sendMessage() {
             const messageText = userInput.value.trim();
@@ -667,11 +711,24 @@
                 removeElement(loadingId);
 
                 if (!response.ok) {
-                    const errorData = await response.json().catch(() => ({ detail: `Error del servidor: ${response.status}` }));
+                    const errorData = await response.json().catch(() => ({
+                        detail: `El servidor respondió con código ${response.status}. Por favor, intenta de nuevo.`
+                    }));
                     throw new Error(errorData.detail);
                 }
 
-                const data = await response.json();
+                let data;
+                try {
+                    data = await response.json();
+                } catch (parseError) {
+                    console.error('Error al parsear respuesta JSON:', parseError);
+                    throw new Error('El servidor devolvió una respuesta inválida. Por favor, intenta de nuevo.');
+                }
+
+                if (!data.response) {
+                    throw new Error('El servidor no devolvió una respuesta válida. Por favor, intenta de nuevo.');
+                }
+
                 appendMessage(data.response, 'agent');
                 currentSessionId = data.session_id;
 
@@ -681,7 +738,10 @@
             } catch (error) {
                 removeElement(loadingId);
                 console.error('Error en la comunicación:', error);
-                appendMessage(`Error: ${error.message}`, 'agent', true);
+
+                // Mostrar mensaje de error amigable al usuario
+                const friendlyMessage = getFriendlyErrorMessage(error);
+                appendMessage(friendlyMessage, 'agent', true);
             } finally {
                 setLoadingState(false);
             }
