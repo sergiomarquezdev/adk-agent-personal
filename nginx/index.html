@@ -6,7 +6,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Sergio Márquez - AI Assistant</title>
     <link rel="icon" type="image/png" href="./favicon.png">
-    <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/marked@4.3.0/marked.min.js"></script>
     <style>
         * {
             margin: 0;
@@ -102,10 +102,30 @@
         .message-content .message a {
             color: #0ea5e9;
             text-decoration: none;
+            font-weight: 500;
         }
 
         .message-content .message a:hover {
             text-decoration: underline;
+            color: #0284c7;
+        }
+
+        .message-content .message blockquote {
+            border-left: 4px solid #14b8a6;
+            padding-left: 16px;
+            margin: 12px 0;
+            color: #4b5563;
+            font-style: italic;
+        }
+
+        .message-content .message strong {
+            font-weight: 600;
+            color: #111827;
+        }
+
+        .message-content .message em {
+            font-style: italic;
+            color: #374151;
         }
 
         .message-content .message blockquote {
@@ -616,6 +636,15 @@
     </footer>
 
     <script>
+        // --- Verificación de dependencias ---
+        console.log('🔧 Verificando dependencias...');
+        if (typeof marked !== 'undefined') {
+            console.log('✅ Marked.js cargado correctamente');
+            console.log('📚 API disponible:', typeof marked === 'function' ? 'marked()' : (typeof marked.parse === 'function' ? 'marked.parse()' : 'unknown'));
+        } else {
+            console.error('❌ Error: Marked.js no se pudo cargar desde CDN');
+        }
+
         const chatbox = document.getElementById('chatbox');
         const userInput = document.getElementById('userInput');
         const sendButton = document.getElementById('sendButton');
@@ -772,15 +801,24 @@
             // 2. Renderizado de contenido: Markdown para agente, texto plano para usuario
             if (sender === 'agent') {
                 try {
-                    // Verificar que marked esté disponible y parsear el Markdown
-                    if (typeof marked !== 'undefined' && marked.parse) {
-                        message.innerHTML = marked.parse(text);
+                                        // Verificar que marked esté disponible y parsear el Markdown
+                    if (typeof marked !== 'undefined') {
+                        console.log('🔧 Debug: Procesando Markdown:', text.substring(0, 100) + '...');
+
+                        // Usar la API estándar de marked.js v4.3.0
+                        const htmlContent = marked(text);
+
+                        console.log('✅ Debug: Markdown procesado exitosamente');
+                        console.log('📝 HTML generado:', htmlContent.substring(0, 200) + '...');
+
+                        message.innerHTML = htmlContent;
                     } else {
-                        console.warn('Marked.js no está disponible, usando texto plano');
+                        console.warn('⚠️ Marked.js no está disponible, usando texto plano');
                         message.textContent = text;
                     }
                 } catch (error) {
-                    console.error('Error al parsear Markdown:', error);
+                    console.error('❌ Error al parsear Markdown:', error);
+                    console.log('📝 Contenido original:', text);
                     message.textContent = text;
                 }
             } else {
@@ -801,7 +839,10 @@
             }
 
             chatbox.appendChild(messageGroup);
-            scrollToBottom();
+
+            // Usar delay más largo para mensajes del agente con Markdown
+            const scrollDelay = (sender === 'agent') ? 50 : 10;
+            scrollToBottom(scrollDelay);
         }
 
         // --- UI Helper Functions ---
@@ -838,11 +879,12 @@
             if (!loading) userInput.focus();
         }
 
-        function scrollToBottom() {
+        function scrollToBottom(delay = 10) {
             // Usar setTimeout para asegurar que el DOM se haya actualizado
             setTimeout(() => {
                 chatbox.scrollTop = chatbox.scrollHeight;
-            }, 10);
+                console.log('📜 Scroll ejecutado - posición:', chatbox.scrollTop, 'altura:', chatbox.scrollHeight);
+            }, delay);
         }
 
         function sendSuggestion(text) {

@@ -1,29 +1,9 @@
-# Versión de la sintaxis de Docker Compose.
-version: '3.8'
-
-# Aquí definimos los servicios (contenedores) de nuestra aplicación.
 services:
-  # El nombre que le damos a nuestro servicio.
   personal-agent:
-    # La imagen que se usará para crear el contenedor.
-    # Es la ruta completa de tu imagen en Docker Hub.
     image: smarquezp/sergio-personal-agent:latest
-
-    # Un nombre amigable para el contenedor, fácil de identificar.
     container_name: sergio-personal-agent
-
-    # Política de reinicio. 'unless-stopped' reinicia el contenedor
-    # automáticamente si falla o si se reinicia el servidor,
-    # pero no si lo detienes tú manualmente. Es ideal para producción.
     restart: unless-stopped
-
-    # Mapeo de puertos. Expone el puerto 8000 del contenedor
-    # en el puerto 8000 del servidor.
     ports:
       - "8000:8000"
-
-    # Variables de entorno. Aquí cargamos las variables
-    # desde un fichero .env para no escribir secretos aquí directamente.
-    # Para desarrollo, agregar DEVELOPMENT=true al .env
     env_file:
       - .env
