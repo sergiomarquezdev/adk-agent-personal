@@ -1,6 +1,6 @@
 #!/bin/bash
 
-# Script para actualizar el agente personal con Docker Compose
+# Script para actualizar el agente personal, incluyendo Nginx y Docker Compose
 
 set -e # Salir si cualquier comando falla
 
@@ -8,12 +8,12 @@ set -e # Salir si cualquier comando falla
 SCRIPT_DIR="/home/ubuntu/sergio-personal-agent"
 LOG_FILE="$SCRIPT_DIR/update.log"
 COMPOSE_FILE="$SCRIPT_DIR/docker-compose.yml"
-# Nombre completo de la imagen a verificar
 IMAGE_NAME="smarquezp/sergio-personal-agent:latest"
-# URL del frontend para verificar que Nginx responde
-APP_URL="https://chat.sergiomarquez.dev"
-# Nombre del servicio en docker-compose.yml
 SERVICE_NAME="personal-agent"
+NGINX_CONFIG_SRC="$SCRIPT_DIR/nginx.conf"
+NGINX_CONFIG_DEST="/etc/nginx/sites-available/chat.sergiomarquez.dev"
+FRONTEND_SRC_DIR="$SCRIPT_DIR"
+FRONTEND_DEST_DIR="/var/www/chat.sergiomarquez.dev"
 
 # Función para logging
 log() {
@@ -24,9 +24,31 @@ log() {
 cd "$SCRIPT_DIR"
 export PATH="/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin"
 
-log "🔍 Verificando actualizaciones para el agente: $IMAGE_NAME..."
+log "🚀 Iniciando despliegue completo..."
 
-# Verificar que existe docker-compose.yml y Docker
+# 1. Actualizar configuración de Nginx
+log "1️⃣  Actualizando configuración de Nginx..."
+if [ -f "$NGINX_CONFIG_SRC" ]; then
+    sudo mv "$NGINX_CONFIG_SRC" "$NGINX_CONFIG_DEST"
+    log "✅ Configuración de Nginx movida a $NGINX_CONFIG_DEST"
+else
+    log "⚠️  No se encontró nginx.conf en $SCRIPT_DIR. Saltando actualización de Nginx."
+fi
+
+# 2. Actualizar archivos del frontend
+log "2️⃣  Actualizando archivos del frontend..."
+sudo mv "$FRONTEND_SRC_DIR/index.html" "$FRONTEND_DEST_DIR/index.html"
+sudo mv "$FRONTEND_SRC_DIR/enhanced_rendering.js" "$FRONTEND_DEST_DIR/enhanced_rendering.js"
+log "✅ Archivos de frontend actualizados en $FRONTEND_DEST_DIR"
+
+# 3. Reiniciar Nginx para aplicar los cambios
+log "3️⃣  Reiniciando Nginx..."
+sudo systemctl restart nginx
+log "✅ Nginx reiniciado."
+
+# 4. Actualizar la aplicación Docker
+log "4️⃣  Verificando actualizaciones de la imagen Docker: $IMAGE_NAME..."
+
 if [ ! -f "$COMPOSE_FILE" ]; then
     log "❌ Error: No se encontró docker-compose.yml en $SCRIPT_DIR"
     exit 1
@@ -36,93 +58,29 @@ if ! docker info > /dev/null 2>&1; then
     exit 1
 fi
 
-# Obtener ID de la imagen actual
 CURRENT_IMAGE_ID=$(docker images --format "{{.ID}}" "$IMAGE_NAME" 2>/dev/null | head -1)
-if [ -z "$CURRENT_IMAGE_ID" ]; then
-    log "⚠️ No se encontró imagen local, se procederá con la descarga..."
-else
-    log "📦 Imagen actual ID: $CURRENT_IMAGE_ID"
-fi
 
-# Intentar descargar la nueva versión de la imagen
-log "🌐 Verificando nueva imagen en el registro..."
+log "🌐 Descargando la última imagen..."
 if command -v docker-compose > /dev/null 2>&1; then
     docker-compose pull --quiet "$SERVICE_NAME" >> "$LOG_FILE" 2>&1
 else
     docker compose pull --quiet "$SERVICE_NAME" >> "$LOG_FILE" 2>&1
 fi
 
-# Obtener ID de la imagen después del pull
 NEW_IMAGE_ID=$(docker images --format "{{.ID}}" "$IMAGE_NAME" 2>/dev/null | head -1)
 
-# Comparar IDs para ver si hay una actualización
 if [ "$CURRENT_IMAGE_ID" = "$NEW_IMAGE_ID" ] && [ -n "$CURRENT_IMAGE_ID" ]; then
-    log "✅ No hay actualizaciones disponibles. Saliendo."
-    exit 0
-fi
-
-log "🆕 Nueva actualización encontrada! Procediendo a actualizar..."
-log "📦 Imagen anterior: ${CURRENT_IMAGE_ID:-'(ninguna)'}"
-log "📦 Imagen nueva:     $NEW_IMAGE_ID"
-
-# Detener e iniciar los contenedores para aplicar la actualización
-log "1️⃣ Deteniendo contenedores..."
-if command -v docker-compose > /dev/null 2>&1; then
-    docker-compose down >> "$LOG_FILE" 2>&1
+    log "✅ La imagen de Docker está actualizada. No se requieren cambios en los contenedores."
 else
-    docker compose down >> "$LOG_FILE" 2>&1
-fi
-
-log "2️⃣ Iniciando contenedores con la nueva imagen..."
-if command -v docker-compose > /dev/null 2>&1; then
-    docker-compose up -d >> "$LOG_FILE" 2>&1
-else
-    docker compose up -d >> "$LOG_FILE" 2>&1
-fi
-
-sudo systemctl restart nginx
-
-log "3️⃣ Esperando 20 segundos a que el servicio se inicie..."
-sleep 20
-
-log "4️⃣ Verificando estado de los contenedores..."
-if command -v docker-compose > /dev/null 2>&1; then
-    docker-compose ps >> "$LOG_FILE" 2>&1
-else
-    docker compose ps >> "$LOG_FILE" 2>&1
-fi
-
-# Verificar que Nginx responde para la URL del chat
-if command -v curl > /dev/null 2>&1; then
-    log "🔗 Verificando que Nginx responde para $APP_URL..."
-    # Para esta app, un 200 (OK) o 404 (Not Found, porque / no es una API) significa que Nginx está funcionando.
-    HTTP_CODE=$(curl -s -o /dev/null -w "%{http_code}" "$APP_URL" --max-time 10 || echo "000")
-
-    if [ "$HTTP_CODE" = "200" ] || [ "$HTTP_CODE" = "404" ]; then
-        log "✅ El frontend está respondiendo correctamente (HTTP: $HTTP_CODE)"
+    log "🆕 Nueva imagen encontrada. Actualizando contenedores..."
+    if command -v docker-compose > /dev/null 2>&1; then
+        docker-compose up -d --no-deps --build $SERVICE_NAME
     else
-        log "⚠️ El frontend no responde como se esperaba (HTTP: $HTTP_CODE). Puede haber un problema con Nginx."
+        docker compose up -d --no-deps --build $SERVICE_NAME
     fi
-
-    # Verificar que el backend responde en /api/health
-    BACKEND_HEALTH_URL="https://chat.sergiomarquez.dev/api/health"
-    log "🔗 Verificando que el backend responde para $BACKEND_HEALTH_URL..."
-    BACKEND_HEALTH_RESPONSE=$(curl -s --max-time 10 "$BACKEND_HEALTH_URL" || echo "")
-    if echo "$BACKEND_HEALTH_RESPONSE" | grep -q '"status"[ ]*:[ ]*"OK"'; then
-        log "✅ El backend está respondiendo correctamente (status: OK)"
-    else
-        log "⚠️ El backend no responde como se esperaba. Respuesta: $BACKEND_HEALTH_RESPONSE"
-    fi
-else
-    log "⚠️ curl no disponible, no se puede verificar conectividad"
+    log "✅ Contenedores actualizados."
+    docker image prune -f >> "$LOG_FILE" 2>&1 || true
 fi
 
-# Limpiar imágenes antiguas sin usar
-log "🧹 Limpiando imágenes antiguas..."
-docker image prune -f >> "$LOG_FILE" 2>&1 || true
-
-log "✅ Actualización completada exitosamente!"
+log "🎉 Despliegue completado exitosamente!"
 log "----------------------------------------"
-
-# Mantener solo los últimos 30 días de logs
-find "$SCRIPT_DIR" -name "*.log" -type f -mtime +30 -delete 2>/dev/null || true
