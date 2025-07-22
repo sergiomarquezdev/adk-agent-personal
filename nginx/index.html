@@ -712,8 +712,8 @@
             userInput.value = '';
             userInput.style.height = 'auto';
 
-            // Asegurar scroll después de enviar mensaje
-            scrollToBottom();
+            // Scroll inmediato cuando el usuario envía mensaje
+            scrollToBottom(true);
 
             const loadingId = showLoadingIndicator();
             setLoadingState(true);
@@ -754,9 +754,6 @@
 
                 appendMessage(data.response, 'agent');
                 currentSessionId = data.session_id;
-
-                // Asegurar scroll después de recibir respuesta
-                scrollToBottom();
 
             } catch (error) {
                 removeElement(loadingId);
@@ -819,8 +816,10 @@
 
                         chatbox.appendChild(messageGroup);
 
-            // Scroll automático para mantener el chat visible
-            scrollToBottom();
+            // Solo scroll automático para mensajes del agente (con micro delay para renderizado)
+            if (sender === 'agent') {
+                scrollToBottom();
+            }
         }
 
         // --- UI Helper Functions ---
@@ -841,7 +840,7 @@
                     </div>
                 </div>`;
             chatbox.appendChild(messageGroup);
-            scrollToBottom();
+            scrollToBottom(); // Micro delay para mostrar indicador de escritura
             return loadingId;
         }
 
@@ -857,11 +856,16 @@
             if (!loading) userInput.focus();
         }
 
-        function scrollToBottom() {
-            // Usar setTimeout para asegurar que el DOM se haya actualizado
-            setTimeout(() => {
+        function scrollToBottom(immediate = false) {
+            if (immediate) {
+                // Scroll inmediato sin delay
                 chatbox.scrollTop = chatbox.scrollHeight;
-            }, 10);
+            } else {
+                // Micro delay solo cuando es necesario para el DOM
+                setTimeout(() => {
+                    chatbox.scrollTop = chatbox.scrollHeight;
+                }, 5);
+            }
         }
 
         function sendSuggestion(text) {
