@@ -16,8 +16,7 @@ COPY requirements.txt .
 
 RUN pip install --no-cache-dir --no-index --find-links=/wheels -r requirements.txt
 
-RUN mkdir -p nginx
-ADD https://cv.sergiomarquez.dev/cv.json nginx/cv.json
+RUN apt-get update -y && apt-get install -y curl && mkdir -p nginx && curl -A "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/58.0.3029.110 Safari/537.36" -o nginx/cv.json https://cv.sergiomarquez.dev/cv.json
 
 COPY . .
 
