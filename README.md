@@ -73,7 +73,8 @@ adk-agent-personal/
 
 - **Backend**: Python 3.11+, FastAPI, Uvicorn
 - **IA/ML**: Google ADK (Agent Development Kit), Gemini 1.5 Flash
-- **Frontend**: HTML5, CSS3, JavaScript, Marked.js
+- **Frontend**: HTML5, CSS3, JavaScript con sistema de rendering robusto
+- **Rendering**: DOMParser + sanitización automática + detección de contenido
 - **Búsqueda**: Google Search API (googlesearch-python)
 - **Testing**: Pytest, pytest-asyncio, pytest-mock, httpx
 - **Containerización**: Docker, Docker Compose
@@ -139,8 +140,9 @@ docker run -p 8000:8000 --env-file .env adk-agent-personal
 La interfaz web está disponible en `/nginx/index.html` con características modernas:
 
 - **🎨 Diseño elegante**: UI/UX optimizada para conversaciones
-- **📝 Markdown completo**: Renderizado con marked.js
-- **💬 Chat fluido**: Experiencia conversacional natural
+- **🤖 Rendering robusto**: Sistema adaptativo que maneja HTML, Markdown y texto automáticamente
+- **🔒 Seguridad avanzada**: DOMParser + sanitización previenen vulnerabilidades XSS
+- **💬 Chat fluido**: Experiencia conversacional natural sin errores de renderizado
 - **📱 Responsive**: Adaptado para móviles y escritorio
 - **⚡ Tiempo real**: Indicadores de typing y loading
 
@@ -162,10 +164,12 @@ curl -X POST "http://localhost:8000/api/invoke" \
 
 ```json
 {
-  "response": "## 🤖 Mi Experiencia en IA/ML\n\nComo **Desarrollador IA/ML** he trabajado con:\n\n- `Python` para machine learning\n- `TensorFlow` y `PyTorch`\n- **Google Cloud AI** y ADK\n- Automatización con `FastAPI`",
+  "response": "<h2>🤖 Mi Experiencia en IA/ML</h2><p>Como <strong>Desarrollador IA/ML</strong> he trabajado con:</p><ul><li><code>Python</code> para machine learning</li><li><strong>TensorFlow</strong> y <strong>PyTorch</strong></li><li><strong>Google Cloud AI</strong> y ADK</li><li>Automatización con <strong>FastAPI</strong></li></ul>",
   "session_id": "user_abc123..."
 }
 ```
+
+> **Nota**: El sistema de rendering robusto detecta automáticamente si la respuesta es HTML, Markdown o texto plano, y la renderiza de forma segura usando DOMParser + sanitización.
 
 ## 🧪 Testing
 
@@ -205,22 +209,33 @@ Ver `tests/TEST_RESULTS.md` para detalles completos.
 
 ### Personalización de Agentes
 
-Los prompts de los agentes están optimizados para Markdown en `assistant/agents.py`:
+Los prompts de los agentes están optimizados para HTML en `assistant/agents.py`:
 
 ```python
-# CV_Expert - Estructurado
-- Usa `## Encabezado` para secciones principales
-- `**texto**` para resaltar tecnologías y empresas
-- `*cursiva*` para fechas y ubicaciones
+# CV_Expert - Estructurado con HTML
+- Usa `<h2>Encabezado</h2>` para secciones principales
+- `<strong>texto</strong>` para resaltar tecnologías y empresas
+- `<em>cursiva</em>` para fechas y ubicaciones
+- `<code>tecnología</code>` para herramientas específicas
 
-# Blog_Expert - Visual
-- `## 📝 Artículos encontrados sobre [tema]`
-- `- **[Título]** - [URL]` para cada resultado
+# Blog_Expert - Visual con HTML
+- `<h2>📝 Artículos encontrados sobre [tema]</h2>`
+- `<ul><li><strong>[Título]</strong> - <a href="[URL]">[URL]</a></li></ul>`
 
-# Personal_Orchestrator - Conversacional
+# Personal_Orchestrator - Conversacional con HTML
 - Mantén fluidez natural
-- `**texto**` para énfasis importantes
+- `<strong>texto</strong>` para énfasis importantes
+- `<p>párrafo</p>` para bloques de texto
 ```
+
+### Sistema de Rendering Robusto
+
+El frontend incluye un sistema avanzado de rendering (`enhanced_rendering.js`) que:
+
+- **🔍 Detecta automáticamente** el tipo de contenido (HTML/Markdown/Texto)
+- **🛡️ Sanitiza** todo el HTML para prevenir XSS
+- **🔄 Fallback inteligente** garantiza que el contenido siempre se muestre
+- **⚡ DOMParser** reemplaza `innerHTML` para mayor seguridad y robustez
 
 ## 🎯 Funcionalidades
 
@@ -258,12 +273,25 @@ El **Blog_Expert** busca en `blog.sergiomarquez.dev`:
 
 ## 🔄 Desarrollo
 
+### Arquitectura del Sistema de Rendering
+
+El proyecto utiliza un sistema de rendering robusto que garantiza la correcta visualización del contenido:
+
+```
+Agente → Contenido → ContentRenderer → Detección Automática → Renderer Específico → DOM
+                           ↓                      ↓                    ↓
+                    HTML/Markdown/Texto     HTMLRenderer        DOMParser + Sanitización
+                                          MarkdownRenderer      Conversión + HTMLRenderer
+                                           TextRenderer        textContent seguro
+```
+
 ### Agregar Nuevos Agentes
 
 1. **Definir agente** en `assistant/agents.py`
 2. **Crear herramientas** en `assistant/tools.py`
 3. **Integrar** en `Personal_Orchestrator.sub_agents`
 4. **Escribir tests** en `tests/`
+5. **Configurar respuesta HTML** siguiendo las guías de formato
 
 ### Ejemplo de Nuevo Agente
 

@@ -6,7 +6,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Sergio Márquez - AI Assistant</title>
     <link rel="icon" type="image/png" href="./favicon.png">
-    <!-- HTML directo desde backend - no necesitamos marked.js -->
+    <script src="./enhanced_rendering.js"></script>
     <style>
         * {
             margin: 0;
@@ -637,13 +637,22 @@
 
     <script>
         // --- Inicialización ---
-        console.log('🚀 Asistente IA iniciado - usando HTML directo desde backend');
+        console.log('🚀 Asistente IA iniciado - usando sistema de renderizado robusto');
 
         const chatbox = document.getElementById('chatbox');
         const userInput = document.getElementById('userInput');
         const sendButton = document.getElementById('sendButton');
         let isLoading = false;
         let currentSessionId = null;
+
+        // Inicializar renderer robusto
+        let contentRenderer = null;
+
+        // Inicializar renderer cuando DOM esté listo
+        document.addEventListener('DOMContentLoaded', function() {
+            contentRenderer = new ContentRenderer();
+            console.log('✅ ContentRenderer inicializado');
+        });
 
         // --- Event Listeners ---
         sendButton.addEventListener('click', sendMessage);
@@ -703,19 +712,35 @@
             return '❌ Algo salió mal. Por favor, intenta de nuevo o recarga la página si el problema persiste.';
         }
 
-        // --- HTML Utility Functions ---
-        function unescapeHtml(escapedHtml) {
+        // --- Content Rendering Functions ---
+        async function renderAgentContent(content, messageElement) {
             /**
-             * Convierte entidades HTML escapadas de vuelta a HTML válido
-             * Ejemplo: "&lt;p&gt;Hola&lt;/p&gt;" → "<p>Hola</p>"
+             * Renderiza contenido del agente usando el sistema robusto
+             * Detecta automáticamente HTML, Markdown o texto plano
              */
-            return escapedHtml
-                .replace(/&lt;/g, '<')
-                .replace(/&gt;/g, '>')
-                .replace(/&amp;/g, '&')
-                .replace(/&quot;/g, '"')
-                .replace(/&#x27;/g, "'")
-                .replace(/&#39;/g, "'");
+            try {
+                console.log('🎯 Renderizando contenido del agente...');
+
+                // Verificar que el renderer esté inicializado
+                if (!contentRenderer) {
+                    console.warn('⚠️ Renderer no inicializado, usando fallback...');
+                    // Fallback temporal: usar textContent
+                    messageElement.textContent = content;
+                    return;
+                }
+
+                // Usar el sistema de rendering robusto
+                const success = await contentRenderer.renderContent(content, messageElement);
+
+                if (!success) {
+                    console.warn('⚠️ Rendering falló, pero fallback ya aplicado');
+                }
+
+            } catch (error) {
+                console.error('❌ Error crítico en renderizado:', error);
+                // Fallback de emergencia ultra-seguro
+                messageElement.textContent = content;
+            }
         }
 
         // --- Core Functions ---
@@ -804,15 +829,14 @@
             const message = document.createElement('div');
             message.className = `message ${isError ? 'error' : ''}`;
 
-                        // 2. Renderizado de contenido: HTML directo desde backend para agente, texto plano para usuario
+                        // 2. Renderizado de contenido: Sistema robusto para agente, texto plano para usuario
             if (sender === 'agent') {
-                console.log('📝 Renderizando HTML del agente (antes de desescapar):', text.substring(0, 100) + '...');
+                console.log('📝 Renderizando contenido del agente (primeros 100 chars):', text.substring(0, 100) + '...');
 
-                // Desescapar HTML que viene del backend y renderizar
-                const unescapedHtml = unescapeHtml(text);
-                message.innerHTML = unescapedHtml;
+                // Usar sistema de rendering robusto
+                renderAgentContent(text, message);
 
-                console.log('✅ HTML desescapado y renderizado:', unescapedHtml.substring(0, 100) + '...');
+                console.log('✅ Contenido del agente procesado con sistema robusto');
             } else {
                 // Para los mensajes del usuario, seguimos usando textContent por seguridad.
                 message.textContent = text;

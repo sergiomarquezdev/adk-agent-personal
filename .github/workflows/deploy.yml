@@ -42,14 +42,14 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v4
 
-      - name: Copiar index.html al servidor (frontend)
+      - name: Copiar archivos frontend al servidor (index.html + enhanced_rendering.js)
         uses: appleboy/scp-action@v1
         with:
           host: ${{ secrets.VPS_HOST }}
           username: ${{ secrets.VPS_USER }}
           key: ${{ secrets.VPS_SSH_KEY }}
-          source: "nginx/index.html"
-          target: "/home/ubuntu/sergio-personal-agent/index.html"
+          source: "nginx/index.html,nginx/enhanced_rendering.js"
+          target: "/home/ubuntu/sergio-personal-agent/"
 
       - name: Copiar update.sh y docker-compose.yml al servidor (backend)
         uses: appleboy/scp-action@v1
@@ -81,4 +81,5 @@ jobs:
             bash ./update.sh
             sudo mv /home/ubuntu/sergio-personal-agent/nginx.conf /etc/nginx/sites-available/chat.sergiomarquez.dev
             sudo mv /home/ubuntu/sergio-personal-agent/index.html /var/www/chat.sergiomarquez.dev/index.html
+            sudo mv /home/ubuntu/sergio-personal-agent/enhanced_rendering.js /var/www/chat.sergiomarquez.dev/enhanced_rendering.js
             sudo systemctl restart nginx
