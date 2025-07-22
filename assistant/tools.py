@@ -3,8 +3,6 @@
 
 import json
 import os
-import time
-import urllib.request
 
 from googlesearch import search
 
@@ -53,50 +51,23 @@ def search_blog_posts(query: str) -> str:
 
 
 def load_cv_data() -> str:
-    """Carga y devuelve el contenido del CV desde la web (con caché local)."""
-    cv_url = "https://cv.sergiomarquez.dev/cv.json"
+    """Carga y devuelve el contenido del CV desde el archivo local."""
     # Calcular la raíz del proyecto de forma robusta
     project_root = os.path.abspath(os.path.join(os.path.dirname(__file__), ".."))
     cv_path = os.path.join(project_root, "nginx", "cv.json")
-    max_age_seconds = 24 * 3600  # 1 día
 
-    def is_cache_valid(path: str) -> bool:
-        if not os.path.exists(path):
-            return False
-        file_age = time.time() - os.path.getmtime(path)
-        return file_age < max_age_seconds
-
-    # 1. Intentar descargar si no hay caché válida
-    if not is_cache_valid(cv_path):
-        try:
-            print(f"🌐 Descargando CV desde {cv_url} ...")
-            with urllib.request.urlopen(cv_url, timeout=10) as response:
-                cv_data = response.read().decode("utf-8")
-                # Validar que es JSON válido antes de guardar
-                json.loads(cv_data)
-                with open(cv_path, "w", encoding="utf-8") as f:
-                    f.write(cv_data)
-                print(f"✅ CV descargado y guardado en caché: {cv_path}")
-        except Exception as e:
-            print(
-                f"⚠️ No se pudo descargar el CV: {e}. Se usará la caché local si existe."
-            )
-
-    # 2. Leer desde archivo local (caché)
     try:
         print(f"📄 Cargando CV desde archivo local: {cv_path}")
         with open(cv_path, "r", encoding="utf-8") as f:
             cv_data = json.load(f)
             return json.dumps(cv_data, indent=2, ensure_ascii=False)
     except FileNotFoundError:
-        print(
-            f"❌ Error: No se encontró el archivo CV en {cv_path} y no se pudo descargar."
-        )
+        print(f"❌ Error: No se encontró el archivo CV en {cv_path}.")
         return json.dumps(
             {
                 "name": "Sergio Márquez",
                 "title": "Desarrollador IA/ML",
-                "note": "CV no disponible. No se pudo descargar ni encontrar archivo local.",
+                "note": "CV no disponible. Archivo no encontrado.",
             },
             indent=2,
             ensure_ascii=False,
