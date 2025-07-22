@@ -7,7 +7,6 @@ set -e # Salir si cualquier comando falla
 # --- Variables de Configuración ---
 SCRIPT_DIR="/home/ubuntu/sergio-personal-agent"
 LOG_FILE="$SCRIPT_DIR/update.log"
-COMPOSE_FILE="$SCRIPT_DIR/docker-compose.yml"
 IMAGE_NAME="smarquezp/sergio-personal-agent:latest"
 SERVICE_NAME="personal-agent"
 NGINX_CONFIG_SRC="$SCRIPT_DIR/nginx.conf"
@@ -37,8 +36,19 @@ fi
 
 # 2. Actualizar archivos del frontend
 log "2️⃣  Actualizando archivos del frontend..."
-sudo mv "$FRONTEND_SRC_DIR/index.html" "$FRONTEND_DEST_DIR/index.html"
-sudo mv "$FRONTEND_SRC_DIR/enhanced_rendering.js" "$FRONTEND_DEST_DIR/enhanced_rendering.js"
+if [ -f "$FRONTEND_SRC_DIR/index.html" ]; then
+    sudo mv "$FRONTEND_SRC_DIR/index.html" "$FRONTEND_DEST_DIR/index.html"
+    log "✅ Archivo index.html copiado a $FRONTEND_DEST_DIR"
+else
+    log "⚠️  No se encontró index.html en $FRONTEND_SRC_DIR."
+fi
+
+if [ -f "$FRONTEND_SRC_DIR/enhanced_rendering.js" ]; then
+    sudo mv "$FRONTEND_SRC_DIR/enhanced_rendering.js" "$FRONTEND_DEST_DIR/enhanced_rendering.js"
+    log "✅ Archivo enhanced_rendering.js copiado a $FRONTEND_DEST_DIR"
+else
+    log "⚠️  No se encontró enhanced_rendering.js en $FRONTEND_SRC_DIR."
+fi
 log "✅ Archivos de frontend actualizados en $FRONTEND_DEST_DIR"
 
 # 3. Reiniciar Nginx para aplicar los cambios
@@ -49,7 +59,7 @@ log "✅ Nginx reiniciado."
 # 4. Actualizar la aplicación Docker
 log "4️⃣  Verificando actualizaciones de la imagen Docker: $IMAGE_NAME..."
 
-if [ ! -f "$COMPOSE_FILE" ]; then
+if [ ! -f "$SCRIPT_DIR/docker-compose.yml" ]; then
     log "❌ Error: No se encontró docker-compose.yml en $SCRIPT_DIR"
     exit 1
 fi
@@ -62,9 +72,9 @@ CURRENT_IMAGE_ID=$(docker images --format "{{.ID}}" "$IMAGE_NAME" 2>/dev/null | 
 
 log "🌐 Descargando la última imagen..."
 if command -v docker-compose > /dev/null 2>&1; then
-    docker-compose pull --quiet "$SERVICE_NAME" >> "$LOG_FILE" 2>&1
+    docker-compose -f "$SCRIPT_DIR/docker-compose.yml" pull --quiet "$SERVICE_NAME" >> "$LOG_FILE" 2>&1
 else
-    docker compose pull --quiet "$SERVICE_NAME" >> "$LOG_FILE" 2>&1
+    docker compose -f "$SCRIPT_DIR/docker-compose.yml" pull --quiet "$SERVICE_NAME" >> "$LOG_FILE" 2>&1
 fi
 
 NEW_IMAGE_ID=$(docker images --format "{{.ID}}" "$IMAGE_NAME" 2>/dev/null | head -1)
@@ -74,9 +84,9 @@ if [ "$CURRENT_IMAGE_ID" = "$NEW_IMAGE_ID" ] && [ -n "$CURRENT_IMAGE_ID" ]; then
 else
     log "🆕 Nueva imagen encontrada. Actualizando contenedores..."
     if command -v docker-compose > /dev/null 2>&1; then
-        docker-compose up -d --no-deps --build $SERVICE_NAME
+        docker-compose -f "$SCRIPT_DIR/docker-compose.yml" up -d --no-deps --build $SERVICE_NAME
     else
-        docker compose up -d --no-deps --build $SERVICE_NAME
+        docker compose -f "$SCRIPT_DIR/docker-compose.yml" up -d --no-deps --build $SERVICE_NAME
     fi
     log "✅ Contenedores actualizados."
     docker image prune -f >> "$LOG_FILE" 2>&1 || true
