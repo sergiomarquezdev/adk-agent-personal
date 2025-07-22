@@ -44,6 +44,7 @@ jobs:
           key: ${{ secrets.VPS_SSH_KEY }}
           source: "nginx/index.html,nginx/enhanced_rendering.js,nginx/update.sh,nginx/docker-compose.yml,nginx/nginx.conf"
           target: "/home/ubuntu/sergio-personal-agent/"
+          overwrite: true
 
       - name: Execute deployment script on server
         uses: appleboy/ssh-action@v1.2.2
