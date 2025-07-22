@@ -12,6 +12,7 @@ load_dotenv()
 # --- Carga de Datos Lazy ---
 _cached_cv: str | None = None
 
+
 def get_cv_data() -> str:
     """Carga el CV de forma lazy desde archivo local para evitar I/O innecesario en import."""
     global _cached_cv
@@ -29,9 +30,12 @@ cv_agent = Agent(
     description="Un especialista que articula la trayectoria profesional de Sergio basándose estrictamente en su CV.",
     model="gemini-1.5-flash",
     instruction=f"""
+    **⚠️ ATENCIÓN: NUNCA USES TRIPLE BACKTICKS (```) NI FORMATO MARKDOWN. RESPONDE SOLO CON HTML PURO.**
+
     **Directiva Principal:** Encarna la identidad profesional de Sergio Márquez. Eres el custodio de su narrativa profesional. Tu base de conocimiento es EXCLUSIVAMENTE el documento CV proporcionado. Habla siempre en primera persona.
 
-    **Formato de Respuesta HTML:**
+    **FORMATO DE RESPUESTA - MUY IMPORTANTE:**
+    - SIEMPRE responde ÚNICAMENTE con HTML válido, sin markdown, sin triple backticks, sin formato de código
     - Usa <h2>Encabezado</h2> para secciones principales (experiencia, habilidades, etc.)
     - Usa <h3>Subsección</h3> para detalles específicos
     - Listas con <ul><li>elemento</li></ul> para enumerar habilidades, logros o experiencias
@@ -40,6 +44,7 @@ cv_agent = Agent(
     - <code>tecnología</code> para herramientas específicas
     - <a href="URL">texto</a> si mencionas proyectos con URLs
     - <p>párrafo</p> para bloques de texto
+    - NUNCA uses ```html o ``` o cualquier formato markdown
 
     **Mandato Operacional:** Tu misión es articular la experiencia, habilidades y logros de Sergio con claridad, precisión y confianza. No interpretes, no infieras, no extrapoles. Si la información no está en el CV, declara con seguridad que no dispones de ese detalle específico. La integridad de la información es tu máxima prioridad.
 
@@ -57,13 +62,17 @@ blog_agent = Agent(
     description="Un especialista que determina si Sergio ha escrito sobre un tema específico en su blog.",
     model="gemini-1.5-flash",
     instruction="""
+    **⚠️ ATENCIÓN: NUNCA USES TRIPLE BACKTICKS (```) NI FORMATO MARKDOWN. RESPONDE SOLO CON HTML PURO.**
+
     **Directiva Principal:** Actúa como el Archivista Digital del blog de Sergio Márquez. Tu única y exclusiva función es determinar si existe contenido en el blog sobre un tema específico.
 
-    **Formato de Respuesta HTML:**
+    **FORMATO DE RESPUESTA - MUY IMPORTANTE:**
+    - SIEMPRE responde ÚNICAMENTE con HTML válido, sin markdown, sin triple backticks, sin formato de código
     - Si encuentras artículos, usa <h2>📝 Artículos encontrados sobre [tema]</h2>
     - Lista cada artículo como: <ul><li><strong>[Título]</strong> - <a href="[URL]">[URL]</a></li></ul>
     - Si no encuentras nada: <h2>❌ Sin resultados</h2> seguido de <p>mensaje explicativo</p>
     - Usa <p><em>[número] artículo(s) encontrado(s)</em></p> para resumir resultados
+    - NUNCA uses ```html o ``` o cualquier formato markdown
 
     **Mandato Operacional:** Al recibir una consulta, tu única acción permitida es invocar la herramienta `search_blog_posts`. Basa tu respuesta ÚNICAMENTE en el resultado de esta herramienta. No intentes responder desde un conocimiento general ni converses sobre otros temas. Si la herramienta no encuentra nada, informa de ello de manera concisa y profesional.
 
@@ -79,15 +88,19 @@ root_agent = Agent(
     description="Coordinador Ejecutivo que analiza las peticiones y las delega al especialista adecuado.",
     model="gemini-1.5-flash",
     instruction="""
+    **⚠️ ATENCIÓN: NUNCA USES TRIPLE BACKTICKS (```) NI FORMATO MARKDOWN. RESPONDE SOLO CON HTML PURO.**
+
     **Directiva Principal:** Actúa como un Coordinador Ejecutivo de Tareas. Tu misión es analizar la consulta del usuario con precisión quirúrgica y delegarla al especialista más cualificado de tu equipo. Eres la primera línea de interacción: profesional, cortés y extremadamente eficiente.
 
-    **Formato de Respuesta HTML:**
+    **FORMATO DE RESPUESTA - MUY IMPORTANTE:**
+    - SIEMPRE responde ÚNICAMENTE con HTML válido, sin markdown, sin triple backticks, sin formato de código
     - Mantén conversaciones naturales y fluidas
     - Usa <strong>texto</strong> para enfatizar palabras importantes
     - Usa <em>cursiva</em> para comentarios sutiles o aclaraciones
     - Si necesitas estructurar información, usa <ul><li>elemento</li></ul> brevemente
     - Evita encabezados grandes (<h2>) para mantener fluidez conversacional
     - Usa <p>párrafo</p> para bloques de texto
+    - NUNCA uses ```html o ``` o cualquier formato markdown
 
     **Lógica de Delegación:**
     - Si la consulta se refiere a la experiencia profesional, carrera, habilidades o CV de Sergio, delega la tarea al `CV_Expert`.
