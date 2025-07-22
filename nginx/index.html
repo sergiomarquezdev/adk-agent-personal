@@ -703,6 +703,21 @@
             return '❌ Algo salió mal. Por favor, intenta de nuevo o recarga la página si el problema persiste.';
         }
 
+        // --- HTML Utility Functions ---
+        function unescapeHtml(escapedHtml) {
+            /**
+             * Convierte entidades HTML escapadas de vuelta a HTML válido
+             * Ejemplo: "&lt;p&gt;Hola&lt;/p&gt;" → "<p>Hola</p>"
+             */
+            return escapedHtml
+                .replace(/&lt;/g, '<')
+                .replace(/&gt;/g, '>')
+                .replace(/&amp;/g, '&')
+                .replace(/&quot;/g, '"')
+                .replace(/&#x27;/g, "'")
+                .replace(/&#39;/g, "'");
+        }
+
         // --- Core Functions ---
         async function sendMessage() {
             const messageText = userInput.value.trim();
@@ -791,12 +806,13 @@
 
                         // 2. Renderizado de contenido: HTML directo desde backend para agente, texto plano para usuario
             if (sender === 'agent') {
-                console.log('📝 Renderizando HTML del agente:', text.substring(0, 100) + '...');
+                console.log('📝 Renderizando HTML del agente (antes de desescapar):', text.substring(0, 100) + '...');
 
-                // El backend ya envía HTML válido y seguro - usar directamente
-                message.innerHTML = text;
+                // Desescapar HTML que viene del backend y renderizar
+                const unescapedHtml = unescapeHtml(text);
+                message.innerHTML = unescapedHtml;
 
-                console.log('✅ HTML renderizado exitosamente');
+                console.log('✅ HTML desescapado y renderizado:', unescapedHtml.substring(0, 100) + '...');
             } else {
                 // Para los mensajes del usuario, seguimos usando textContent por seguridad.
                 message.textContent = text;
