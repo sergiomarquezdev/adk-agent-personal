@@ -153,12 +153,8 @@ class HTMLRenderer {
     }
 
     insertNodes(sourceElement, targetElement) {
-        // Copiar todos los nodos hijos de forma segura
-        const nodes = Array.from(sourceElement.childNodes);
-        nodes.forEach(node => {
-            const clonedNode = node.cloneNode(true);
-            targetElement.appendChild(clonedNode);
-        });
+        // Insertar el HTML sanitizado directamente para renderizado correcto
+        targetElement.innerHTML = sourceElement.innerHTML;
     }
 }
 
