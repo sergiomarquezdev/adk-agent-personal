@@ -17,7 +17,7 @@ def get_cv_data() -> str:
     """Carga el CV de forma lazy desde archivo local para evitar I/O innecesario en import."""
     global _cached_cv
     if _cached_cv is None:
-        print("📄 Cargando CV desde archivo local por primera vez...")
+        print("Cargando CV desde archivo local por primera vez...")
         _cached_cv = load_cv_data()
     return _cached_cv
 

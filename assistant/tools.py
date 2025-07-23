@@ -57,12 +57,12 @@ def load_cv_data() -> str:
     cv_path = os.path.join(project_root, "nginx", "cv.json")
 
     try:
-        print(f"📄 Cargando CV desde archivo local: {cv_path}")
+        print(f"Cargando CV desde archivo local: {cv_path}")
         with open(cv_path, "r", encoding="utf-8") as f:
             cv_data = json.load(f)
             return json.dumps(cv_data, indent=2, ensure_ascii=False)
     except FileNotFoundError:
-        print(f"❌ Error: No se encontró el archivo CV en {cv_path}.")
+        print(f"Error: No se encontró el archivo CV en {cv_path}.")
         return json.dumps(
             {
                 "name": "Sergio Márquez",
