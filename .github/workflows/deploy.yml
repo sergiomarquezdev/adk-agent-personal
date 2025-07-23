@@ -3,7 +3,7 @@ name: Build, Push, and Deploy Personal Agent
 on:
   push:
     branches:
-      - main
+      - disabled
   workflow_dispatch:
 
 jobs:
